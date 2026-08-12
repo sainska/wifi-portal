@@ -1,0 +1,14 @@
+{
+  "127.0.0.10": {
+    "packageId": "1h",
+    "authorizedAt": 1786434262805,
+    "expiresAt": 1786437862805,
+    "phone": "+254712345678",
+    "mpesaCode": null,
+    "amount": 2,
+    "source": "admin_confirm",
+    "mac": "AA:BB:CC:DD:EE:FF",
+    "transactionId": null,
+    "deviceName": null
+  }
+}

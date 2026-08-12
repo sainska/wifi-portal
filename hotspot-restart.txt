@@ -1,0 +1,21 @@
+﻿=== Hotspot setup 2026-08-12 14:04:14 ===
+SSID: FREE FAST WiFi
+Security: Open (no password)
+Registry OK: HKLM:\SYSTEM\CurrentControlSet\Services\icssvc\Settings\PersonalHotspot
+Registry OK: HKLM:\SOFTWARE\Microsoft\WcmSvc\Tethering\Settings
+ICS service restarted.
+ConfigureAccessPoint note: Exception calling "Invoke" with "2" argument(s): "Object of type 'System.__ComObject' cannot be converted to type 'Windows.Foundation.IAsyncOperation`1[Windows.Networking.NetworkOperators.NetworkOperatorTetheringAccessPointConfiguration]'."
+Continuing with registry SSID...
+StartTethering: Unknown
+Active SSID: 
+Clients: 0
+Open network: no password required
+Hotspot result: Success
+Registry SSID: FREE FAST WiFi
+Registry AuthMode: 0 (0=Open)
+Registry PasswordPresent: 0 (0=No password)
+
+--- ipconfig (hotspot adapter) ---
+
+--- UDP 53 ---
+

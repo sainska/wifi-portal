@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WiFi Hotspot — Connect to Internet</title>
+<style>
+  :root {
+    --bg-deep: #070b1a;
+    --bg-mid: #0f1730;
+    --accent: #00c853;
+    --accent-glow: rgba(0, 200, 83, 0.35);
+    --mpesa: #4caf50;
+    --cyan: #00bcd4;
+    --purple: #7c4dff;
+    --card-bg: rgba(15, 23, 48, 0.72);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text: #f0f4ff;
+    --muted: #94a3b8;
+    --glass: rgba(255, 255, 255, 0.04);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .bg-gradient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0, 188, 212, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(124, 77, 255, 0.06) 0%, transparent 55%),
+      linear-gradient(160deg, #070b1a 0%, #0f1730 40%, #0a1628 100%);
+  }
+
+  /* ── Layout ── */
+  .page {
+    position: relative;
+    z-index: 2;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 16px 14px 40px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  .logo-ring {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(0, 188, 212, 0.3);
+    animation: pulse-ring 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-ring {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 188, 212, 0.25); }
+    50%       { box-shadow: 0 0 40px rgba(124, 77, 255, 0.4); }
+  }
+
+  .logo-ring svg { width: 24px; height: 24px; fill: white; }
+
+  .header h1 {
+    font-size: clamp(1.15rem, 3.5vw, 1.5rem);
+    font-weight: 800;
+    background: linear-gradient(90deg, #fff 30%, var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  /* ── Steps ── */
+  .steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 30px;
+    background: var(--glass);
+    border: 1px solid var(--card-border);
+    font-size: 0.78rem;
+    color: var(--muted);
+    transition: all 0.25s;
+  }
+
+  .step.active {
+    background: rgba(0, 200, 83, 0.12);
+    border-color: rgba(0, 200, 83, 0.35);
+    color: var(--accent);
+  }
+
+  .step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+
+  .step.active .step-num {
+    background: var(--accent);
+    color: #000;
+  }
+
+  /* ── Package grid ── */
+  .section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(0,188,212,0.3), transparent);
+  }
+
+  .packages-section, .voucher-section, .mpesa-section {
+    background: rgba(10, 14, 30, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 18px;
+    padding: 16px 14px 14px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(12px);
+  }
+
+  .packages-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  @media (min-width: 700px) {
+    .packages-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  @media (max-width: 520px) {
+    .packages-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  }
+
+  .pkg-card {
+    position: relative;
+    background: rgba(18, 26, 52, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 14px 12px 12px;
+    backdrop-filter: blur(8px);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .pkg-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,200,83,0.06) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .pkg-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(0, 200, 83, 0.35);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0,200,83,0.1);
+  }
+
+  .pkg-card:hover::before { opacity: 1; }
+
+  .pkg-card.selected {
+    border-color: rgba(0, 200, 83, 0.55);
+    box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2), 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .pkg-card.featured {
+    border-color: rgba(0, 188, 212, 0.4);
+  }
+
+  .pkg-card.featured .pkg-name {
+    padding-right: 52px;
+  }
+
+  .pkg-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(0, 188, 212, 0.2);
+    color: var(--cyan);
+    border: 1px solid rgba(0, 188, 212, 0.3);
+  }
+
+  .pkg-name {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.3;
+    padding-right: 0;
+    min-height: 2.6em;
+  }
+
+  .pkg-price {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .pkg-price-old {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.3);
+    text-decoration: line-through;
+  }
+
+  .pkg-deal-badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255, 87, 34, 0.2);
+    color: #ff8a65;
+    vertical-align: middle;
+  }
+
+  .pkg-price span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+
+  .pkg-meta {
+    display: flex;
+    gap: 6px;
+    margin: 8px 0 10px;
+    flex-wrap: wrap;
+  }
+
+  .pkg-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.65rem;
+    color: var(--muted);
+    background: rgba(255,255,255,0.04);
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+
+  .pkg-meta-item svg {
+    width: 12px;
+    height: 12px;
+    fill: var(--cyan);
+    flex-shrink: 0;
+  }
+
+  .btn-subscribe {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #00a844);
+    color: #000;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn-subscribe:hover { opacity: 0.9; transform: scale(1.02); }
+
+  /* ── Panels ── */
+  .panel {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 22px 20px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 20px;
+  }
+
+  .panel h2 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel h2 .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .panel p.desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+    line-height: 1.55;
+  }
+
+  .payment-method-card {
+    background: linear-gradient(135deg, rgba(0, 188, 212, 0.12), rgba(124, 77, 255, 0.14));
+    border: 1px solid rgba(0, 188, 212, 0.24);
+    border-radius: 14px;
+    padding: 16px 14px;
+    margin-bottom: 12px;
+  }
+
+  .payment-method-headline {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .phone-input-group {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-top: 12px;
+  }
+
+  .phone-input-group label {
+    color: #e0f2fe;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .phone-input-group input {
+    margin-top: 0;
+  }
+
+  .paystack-section {
+    background: rgba(0, 188, 212, 0.08);
+    border: 1px solid rgba(0, 188, 212, 0.18);
+    border-radius: 18px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+
+  .paystack-section .section-title {
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+
+  .paystack-section .desc {
+    color: var(--text);
+    font-size: 0.86rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+
+  .payment-method-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--cyan);
+    margin-bottom: 6px;
+  }
+
+  .payment-method-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .payment-method-copy {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  .helper-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 12px;
+  }
+
+  .helper-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.72);
+    font-size: 0.7rem;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .helper-text {
+    font-size: 0.74rem;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.45;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .status-pill.ready {
+    background: rgba(0, 200, 83, 0.12);
+    color: #86efac;
+    border: 1px solid rgba(0, 200, 83, 0.2);
+  }
+
+  .status-pill.waiting {
+    background: rgba(0, 188, 212, 0.12);
+    color: #67e8f9;
+    border: 1px solid rgba(0, 188, 212, 0.2);
+  }
+
+  .status-pill.error {
+    background: rgba(239, 68, 68, 0.12);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  input[type=text], input[type=tel], textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.35);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  input:focus, textarea:focus {
+    border-color: rgba(0, 200, 83, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.12);
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  .btn-primary {
+    width: 100%;
+    margin-top: 14px;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--mpesa), #388e3c);
+    color: white;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary:hover:not(:disabled) { opacity: 0.92; transform: scale(1.01); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    width: 100%;
+    margin-top: 10px;
+    padding: 11px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
+
+  .msg {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    text-align: center;
+    display: none;
+  }
+
+  .msg.show { display: block; }
+  .msg.error { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
+  .msg.success { background: rgba(0,200,83,0.12); color: #86efac; border: 1px solid rgba(0,200,83,0.25); }
+  .msg.info { background: rgba(0,188,212,0.1); color: #67e8f9; border: 1px solid rgba(0,188,212,0.25); }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #0f1730;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    max-width: 420px;
+    width: 100%;
+    position: relative;
+    animation: modalIn 0.25s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+  }
+
+  .modal-close:hover { color: var(--text); }
+
+  .modal-pkg-summary {
+    background: rgba(0,200,83,0.08);
+    border: 1px solid rgba(0,200,83,0.2);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+
+  .modal-pkg-summary .name { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .modal-pkg-summary .price { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+
+  .countdown-ring {
+    width: 80px;
+    height: 80px;
+    margin: 16px auto;
+    position: relative;
+  }
+
+  .countdown-ring svg { transform: rotate(-90deg); }
+  .countdown-ring .track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 6; }
+  .countdown-ring .progress { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .countdown-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  /* ── Assistance ── */
+  .assistance {
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(124, 77, 255, 0.08);
+    border: 1px solid rgba(124, 77, 255, 0.2);
+    margin-bottom: 12px;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .assistance a {
+    color: var(--cyan);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .assistance a:hover { text-decoration: underline; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.25);
+    padding-top: 8px;
+  }
+
+  .footer strong { color: rgba(255,255,255,0.45); }
+
+  /* ── Connected state ── */
+  .connected-screen {
+    text-align: center;
+    padding: 48px 24px;
+  }
+
+  .connected-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    box-shadow: 0 0 40px var(--accent-glow);
+    animation: pulse-ring 2s ease-in-out infinite;
+  }
+
+  .connected-screen h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #fff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .connected-screen p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="bg-gradient"></div>
+
+<div class="page" id="app">
+
+  <header class="header">
+    <div class="logo-ring">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+    </div>
+    <h1>Connect to Internet</h1>
+    <p>Join <strong style="color:var(--cyan)">FREE FAST WiFi</strong> — pay with M-Pesa STK</p>
+  </header>
+
+  <div class="voucher-section">
+    <div class="section-title" style="margin-bottom:12px">Voucher Access</div>
+    <p class="desc" style="margin-bottom:12px">Have a voucher code? Enter it below to activate a package instantly.</p>
+    <label for="voucherInput">Voucher Code</label>
+    <input type="text" id="voucherInput" placeholder="Enter voucher code" />
+    <button class="btn-primary" id="voucherBtn" type="button" style="background:linear-gradient(135deg,#00bcd4,#00838f);">Apply Voucher</button>
+    <div class="msg" id="voucherMsg"></div>
+  </div>
+
+  <div class="steps" id="steps" style="margin: 0 0 12px;">
+    <div class="step active" data-step="1"><span class="step-num">1</span> Select package</div>
+    <div class="step" data-step="2"><span class="step-num">2</span> Pay with phone</div>
+    <div class="step" data-step="3"><span class="step-num">3</span> Approve M-pesa</div>
+    <div class="step" data-step="4"><span class="step-num">4</span> Connect & Enjoy</div>
+  </div>
+
+  <div class="paystack-section">
+    <div class="section-title">M-Pesa STK Checkout</div>
+    <p class="desc">Select a package, then enter your phone number after tapping "Start Payment". A M-Pesa prompt will appear on your handset to complete the transaction.</p>
+  </div>
+
+  <div class="packages-section">
+    <div class="section-title" style="margin-bottom:12px">Choose Your Package</div>
+    <div class="packages-grid" id="packages"></div>
+  </div>
+
+  <div class="mpesa-section">
+    <div class="section-title" style="margin-bottom:12px">Login with M-Pesa SMS / Transaction Code</div>
+    <p class="desc" style="margin-bottom:12px">Please paste the M-Pesa SMS or transaction code to connect to the internet.</p>
+    <label for="mpesaInput">M-Pesa SMS / Transaction Code</label>
+    <input type="text" id="mpesaInput" placeholder="Paste your M-Pesa SMS or transaction code" />
+    <button class="btn-primary" id="mpesaBtn" type="button" style="background:linear-gradient(135deg,#4caf50,#2e7d32);">Connect with M-Pesa Code</button>
+    <div class="msg" id="mpesaMsg"></div>
+  </div>
+
+  <div class="assistance" id="assistance">
+    Help: <a id="assist-link" href="tel:+254759587277">254759587277</a>
+  </div>
+
+  <footer class="footer">Powered by <strong id="brand">quantumByteiNNOVATIONS</strong></footer>
+</div>
+
+<!-- Subscribe Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:16px;text-align:center">Subscribe to WiFi</h2>
+    <div class="modal-pkg-summary" id="modalSummary"></div>
+
+    <div id="modalPhoneStep">
+      <div class="status-pill ready" id="paymentStatusBadge">Ready to pay</div>
+      <div class="payment-method-card">
+        <div class="payment-method-badge">⚡ M-Pesa STK</div>
+        <div class="payment-method-title">Secure,Fast Free-Cost Checkout</div>
+        <p class="payment-method-copy">Enter your phone number and approve the payment prompt that lands on your handset. The portal will connect you as soon as your payment is confirmed.</p>
+      </div>
+      <div class="helper-row">
+        <span class="helper-pill">✅ Secure</span>
+        <span class="helper-pill">⚡ Instant</span>
+        <span class="helper-pill">📱 M-Pesa only</span>
+      </div>
+      <div class="phone-input-group">
+        <label for="phoneInput">Enter your M-Pesa phone number</label>
+        <input type="tel" id="phoneInput" placeholder="e.g. 0712345678 or 254712345678" />
+        <div class="helper-text" id="phoneHelper">Use the number that will receive the M-Pesa STK prompt.</div>
+      </div>
+      <button class="btn-primary" id="paystackBtn" style="background:linear-gradient(135deg,#7c4dff,#4d2dc6);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <span id="paystackBtnLabel">Start M-Pesa Payment</span>
+      </button>
+      <div class="msg" id="paystackMsg"></div>
+    </div>
+
+    <div id="modalWaitStep" class="hidden">
+      <p style="text-align:center;font-size:0.85rem;color:var(--muted);margin-bottom:4px">Complete payment on your phone</p>
+      <div class="countdown-ring">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle class="track" cx="40" cy="40" r="34"/>
+          <circle class="progress" id="countdownCircle" cx="40" cy="40" r="34"
+            stroke-dasharray="213.6" stroke-dashoffset="0"/>
+        </svg>
+        <div class="countdown-num" id="countdownNum">30</div>
+      </div>
+      <p style="text-align:center;font-size:0.78rem;color:var(--muted)">Waiting for authentication…</p>
+      <div class="msg info show" id="waitMsg" style="margin-top:14px">Check your phone for the M-Pesa prompt</div>
+      <button class="btn-secondary hidden" id="openPaystackBtn" style="margin-top:12px">Open payment page</button>
+    </div>
+
+    <div class="msg" id="modalMsg"></div>
+    <button class="btn-secondary hidden" id="modalRetry">Try Again</button>
+  </div>
+</div>
+
+<script>
+/* ── App logic ── */
+let packages = [];
+let portalConfig = {};
+let selectedPackage = null;
+let checkoutId = null;
+let countdownTimer = null;
+let pollInterval = null;
+let selectedPackageForMpesa = null;
+
+function setStep(n) {
+  document.querySelectorAll(".step").forEach((el) => {
+    el.classList.toggle("active", Number(el.dataset.step) <= n);
+  });
+}
+
+function showMsg(el, text, type) {
+  el.textContent = text;
+  el.className = `msg show ${type}`;
+}
+
+function hideMsg(el) {
+  el.className = "msg";
+  el.textContent = "";
+}
+
+function formatExpiry(ts) {
+  return new Date(ts).toLocaleString(undefined, {
+    dateStyle: "medium", timeStyle: "short",
+  });
+}
+
+function setPaymentState(state, message) {
+  const badge = document.getElementById("paymentStatusBadge");
+  if (!badge) return;
+  badge.className = `status-pill ${state}`;
+  badge.textContent = message;
+}
+
+function showConnected(expiresAt) {
+  document.getElementById("app").innerHTML = `
+    <div class="connected-screen">
+      <div class="connected-icon">✓</div>
+      <h1>You're Connected!</h1>
+      <p>Your internet access is active.<br>Valid until <strong style="color:var(--accent)">${formatExpiry(expiresAt)}</strong></p>
+      <p style="margin-top:16px;font-size:0.82rem">You can close this page and start browsing.</p>
+      <button class="btn-primary" onclick="window.location.reload()" style="max-width:260px;margin:20px auto 0">Start over</button>
+    </div>
+  `;
+  closeModal();
+}
+
+function readCache(key, ttlMs) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    if (Date.now() - (parsed.savedAt || 0) > ttlMs) return null;
+    return parsed.value;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(key, value) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify({ value, savedAt: Date.now() }));
+  } catch {
+    // Ignore storage failures and fall back to a fresh request.
+  }
+}
+
+function applyPortalConfig(config) {
+  if (!config) return;
+  portalConfig = config;
+  document.getElementById("brand").textContent = portalConfig.brandName || "quantumByteiNNOVATIONS";
+  const phone = portalConfig.assistancePhone || "254759587277";
+  const link = document.getElementById("assist-link");
+  link.textContent = phone;
+  link.href = `tel:+${phone.replace(/\D/g, "")}`;
+
+  const paystackButton = document.getElementById("paystackBtn");
+  if (paystackButton) {
+    paystackButton.style.display = "flex";
+    const label = document.getElementById("paystackBtnLabel");
+    if (label) {
+      label.textContent = portalConfig.paystackEnabled ? "Start Paystack Payment" : "Start Payment Flow";
+    }
+  }
+}
+
+async function loadData() {
+  const cachedPackages = readCache("wifiPortalPackagesCache", 5 * 60 * 1000);
+  const cachedConfig = readCache("wifiPortalConfigCache", 5 * 60 * 1000);
+
+  if (cachedPackages) {
+    packages = cachedPackages;
+    renderPackages();
+  }
+  if (cachedConfig) {
+    applyPortalConfig(cachedConfig);
+  }
+
+  const [pkgRes, cfgRes] = await Promise.all([
+    fetch("/api/packages"),
+    fetch("/api/portal-config"),
+  ]);
+  packages = await pkgRes.json();
+  portalConfig = await cfgRes.json();
+  writeCache("wifiPortalPackagesCache", packages);
+  writeCache("wifiPortalConfigCache", portalConfig);
+  applyPortalConfig(portalConfig);
+  renderPackages();
+}
+
+function renderPackages() {
+  const grid = document.getElementById("packages");
+  grid.innerHTML = packages.map((pkg) => `
+    <div class="pkg-card${pkg.featured ? " featured" : ""}" data-id="${pkg.id}">
+      ${pkg.featured ? '<span class="pkg-badge">Popular</span>' : ""}
+      <div class="pkg-name">${pkg.name}</div>
+      <div class="pkg-price">
+        <span>KES ${pkg.price}</span>
+        ${pkg.originalPrice ? `<span class="pkg-price-old">KES ${pkg.originalPrice}</span>` : ""}
+        ${pkg.originalPrice ? `<span class="pkg-deal-badge">50% OFF</span>` : ""}
+        <span style="font-size:0.75rem;font-weight:600;color:var(--muted);margin-left:0">/ plan</span>
+      </div>
+      <div class="pkg-meta">
+        <span class="pkg-meta-item">
+          <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+          ${pkg.durationLabel}
+        </span>
+        <span class="pkg-meta-item">
+          <svg viewBox="0 0 24 24"><path d="M4 6h18V4H4c-1.1 0-2 .9-2 2v11H0v3h14v-3H4V6zm19 2h-6c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zm-1 9h-4v-7h4v7z"/></svg>
+          ${pkg.devices} Device${pkg.devices > 1 ? "s" : ""}
+        </span>
+      </div>
+      <button class="btn-subscribe" data-id="${pkg.id}">Subscribe</button>
+    </div>
+  `).join("");
+
+  grid.querySelectorAll(".btn-subscribe").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const pkg = packages.find((p) => p.id === btn.dataset.id);
+      openModal(pkg);
+    });
+  });
+
+  grid.querySelectorAll(".pkg-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      const pkg = packages.find((p) => p.id === card.dataset.id);
+      if (!pkg) return;
+      openModal(pkg);
+    });
+  });
+}
+
+/* ── Modal ── */
+const modal = document.getElementById("modal");
+const CIRCUMFERENCE = 213.6;
+let waitSeconds = 30;
+
+function normalizePhoneInput(phone) {
+  const digits = String(phone || "").replace(/\D/g, "");
+  if (!digits) return null;
+  if (digits.startsWith("254") && digits.length === 12) return `+${digits}`;
+  if (digits.startsWith("0") && digits.length === 10) return `+254${digits.slice(1)}`;
+  if (digits.length === 9) return `+254${digits}`;
+  if (digits.length >= 9) return `+${digits}`;
+  return null;
+}
+
+function setCookie(name, value, days) {
+  const expires = new Date(Date.now() + (days || 30) * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
+function getCookie(name) {
+  const matches = document.cookie.match(new RegExp(`(?:^|; )${name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, "\\$1")}=([^;]*)`));
+  return matches ? decodeURIComponent(matches[1]) : null;
+}
+
+function loadSavedPhone() {
+  const saved = getCookie("wifiPortalPhone");
+  if (saved) {
+    const input = document.getElementById("phoneInput");
+    if (input && !input.value.trim()) {
+      input.value = saved;
+    }
+  }
+}
+
+function openModal(pkg) {
+  selectedPackage = pkg;
+  selectedPackageForMpesa = pkg;
+  checkoutId = null;
+  clearInterval(countdownTimer);
+  clearInterval(pollInterval);
+
+  document.querySelectorAll(".pkg-card").forEach((c) => {
+    c.classList.toggle("selected", c.dataset.id === pkg.id);
+  });
+
+  document.getElementById("modalSummary").innerHTML = `
+    <div class="name">${pkg.name}</div>
+    <div class="price">KES ${pkg.price}</div>
+    <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">${pkg.durationLabel} · ${pkg.devices} Device${pkg.devices > 1 ? "s" : ""}</div>
+  `;
+
+  document.getElementById("modalPhoneStep").classList.remove("hidden");
+  document.getElementById("modalWaitStep").classList.add("hidden");
+  document.getElementById("modalRetry").classList.add("hidden");
+  document.getElementById("openPaystackBtn").classList.add("hidden");
+  document.getElementById("phoneInput").value = "";
+  const paystackButton = document.getElementById("paystackBtn");
+  const paystackLabel = document.getElementById("paystackBtnLabel");
+  if (paystackLabel) {
+    paystackLabel.textContent = portalConfig.paystackEnabled ? "Start Paystack Payment" : "Start Payment Flow";
+  }
+  if (paystackButton) {
+    paystackButton.disabled = false;
+    paystackButton.style.display = "flex";
+  }
+  document.getElementById("phoneHelper").textContent = portalConfig.paystackEnabled
+    ? "We’ll format your number for the payment prompt automatically."
+    : "Paystack is not configured, so this will continue through the portal’s payment fallback flow.";
+  hideMsg(document.getElementById("modalMsg"));
+  setPaymentState("ready", "Ready to pay");
+
+  setStep(1);
+  modal.classList.add("open");
+}
+
+function closeModal() {
+  modal.classList.remove("open");
+  clearInterval(countdownTimer);
+  clearInterval(pollInterval);
+}
+
+document.getElementById("modalClose").addEventListener("click", closeModal);
+modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+
+document.getElementById("paystackBtn").addEventListener("click", async () => {
+  const phone = document.getElementById("phoneInput").value.trim();
+  const msgEl = document.getElementById("paystackMsg");
+  const btn = document.getElementById("paystackBtn");
+  const helperEl = document.getElementById("phoneHelper");
+
+  if (!selectedPackage) {
+    showMsg(msgEl, "Please choose a package first.", "error");
+    return;
+  }
+
+  const normalizedPhone = normalizePhoneInput(phone);
+  if (!normalizedPhone) {
+    showMsg(msgEl, "Enter a valid phone number like 0712345678.", "error");
+    helperEl.textContent = "Please use a Kenyan mobile number to continue.";
+    setPaymentState("error", "Phone missing");
+    return;
+  }
+
+  setCookie("wifiPortalPhone", normalizedPhone, 90);
+  btn.disabled = true;
+  hideMsg(msgEl);
+  helperEl.textContent = `We’ll send the prompt to ${normalizedPhone}.`;
+  setPaymentState("waiting", "Starting payment");
+  setStep(2);
+
+  try {
+    const res = await fetch("/api/paystack/stk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        packageId: selectedPackage.id,
+        phone: normalizedPhone,
+        provider: portalConfig.paystackMobileProvider,
+      }),
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      showMsg(msgEl, data.message || "Unable to start Paystack STK.", "error");
+      setPaymentState("error", "Payment failed");
+      btn.disabled = false;
+      return;
+    }
+
+    if (data.paid) {
+      showConnected(data.result?.expiresAt || Date.now() + 1000 * 60 * 5);
+      return;
+    }
+
+    selectedPackageForMpesa = selectedPackage;
+    checkoutId = data.checkoutId;
+    waitSeconds = Math.min(data.waitSeconds || 30, 30);
+
+    document.getElementById("paystackBtn").disabled = false;
+    document.getElementById("modalPhoneStep").classList.add("hidden");
+    document.getElementById("modalWaitStep").classList.remove("hidden");
+    setStep(3);
+    setPaymentState("waiting", "Awaiting approval");
+
+    const instruction = data.displayText || "Check your phone and approve the Paystack prompt.";
+    showMsg(document.getElementById("waitMsg"), instruction, "info");
+    startCountdown(Math.min(waitSeconds, 15));
+    if (data.manualMode) {
+      showMsg(msgEl, data.message || "The portal is using the manual fallback flow.", "info");
+      setTimeout(() => {
+        showMsg(msgEl, "Please contact support or use the manual M-Pesa code option if you are ready to continue.", "info");
+      }, 1400);
+    } else {
+      if (data.authorizationUrl) {
+        const openBtn = document.getElementById("openPaystackBtn");
+        openBtn.classList.remove("hidden");
+        openBtn.onclick = () => window.open(data.authorizationUrl, "_blank", "noopener,noreferrer");
+      }
+      startPaystackPolling(data.reference || data.checkoutId, msgEl);
+    }
+  } catch {
+    showMsg(msgEl, "Network error — please try again.", "error");
+    setPaymentState("error", "Connection issue");
+    btn.disabled = false;
+  }
+});
+
+function startPaystackPolling(reference, msgEl) {
+  clearInterval(pollInterval);
+  const poll = async () => {
+    try {
+      const res = await fetch("/api/paystack/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reference }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        clearInterval(countdownTimer);
+        clearInterval(pollInterval);
+        setPaymentState("ready", "Payment confirmed");
+        showConnected(data.expiresAt || Date.now() + 1000 * 60 * 5);
+      } else if (data.message && /not verified|not found|expired/i.test(data.message)) {
+        showMsg(msgEl, data.message, "info");
+      }
+    } catch {
+      /* ignore transient failures */
+    }
+  };
+  poll();
+  pollInterval = setInterval(poll, 2000);
+  setTimeout(() => clearInterval(pollInterval), 30_000);
+};
+
+function startCountdown(total) {
+  let remaining = total;
+  const numEl = document.getElementById("countdownNum");
+  const circle = document.getElementById("countdownCircle");
+
+  numEl.textContent = remaining;
+  circle.style.strokeDashoffset = "0";
+
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    remaining--;
+    numEl.textContent = Math.max(0, remaining);
+    circle.style.strokeDashoffset = String(CIRCUMFERENCE * (1 - remaining / total));
+
+    if (remaining <= 0) {
+      clearInterval(countdownTimer);
+      onWaitTimeout();
+    }
+  }, 1000);
+}
+
+function startPolling() {
+  clearInterval(pollInterval);
+  const poll = async () => {
+    if (!checkoutId) return;
+    try {
+      const res = await fetch(`/api/subscribe/${checkoutId}/status`);
+      const data = await res.json();
+      if (data.status === "paid") {
+        clearInterval(countdownTimer);
+        clearInterval(pollInterval);
+        showConnected(data.expiresAt);
+      }
+    } catch { /* ignore */ }
+  };
+
+  pollInterval = setInterval(poll, 3000);
+  setTimeout(() => clearInterval(pollInterval), (waitSeconds + 2) * 1000);
+}
+
+function onWaitTimeout() {
+  document.getElementById("modalWaitStep").classList.add("hidden");
+  document.getElementById("modalRetry").classList.remove("hidden");
+  setPaymentState("error", "Timed out");
+  setStep(4);
+  showMsg(document.getElementById("modalMsg"),
+    "Payment timed out. Please try again or contact support.", "info");
+}
+
+document.getElementById("modalRetry").addEventListener("click", () => {
+  openModal(selectedPackage);
+});
+
+/* ── Voucher connect ── */
+document.getElementById("voucherBtn").addEventListener("click", async () => {
+  const code = document.getElementById("voucherInput").value.trim();
+  const msgEl = document.getElementById("voucherMsg");
+  const btn = document.getElementById("voucherBtn");
+
+  if (!code) {
+    showMsg(msgEl, "Enter a voucher code to continue.", "error");
+    return;
+  }
+
+  btn.disabled = true;
+  hideMsg(msgEl);
+  try {
+    const res = await fetch("/api/voucher", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      showMsg(msgEl, data.message || "Voucher accepted.", "success");
+      showConnected(data.expiresAt);
+    } else {
+      showMsg(msgEl, data.message || "Voucher could not be used.", "error");
+      btn.disabled = false;
+    }
+  } catch {
+    showMsg(msgEl, "Network error — please try again.", "error");
+    btn.disabled = false;
+  }
+});
+
+/* ── M-Pesa code connect ── */
+document.getElementById("mpesaBtn").addEventListener("click", async () => {
+  const input = document.getElementById("mpesaInput").value.trim();
+  const msgEl = document.getElementById("mpesaMsg");
+  const btn = document.getElementById("mpesaBtn");
+
+  if (!input) {
+    showMsg(msgEl, "Paste your M-Pesa SMS or transaction code.", "error");
+    return;
+  }
+
+  btn.disabled = true;
+  hideMsg(msgEl);
+  try {
+    const phone = document.getElementById("phoneInput")?.value?.trim() || null;
+    const res = await fetch("/api/mpesa-connect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ input, packageId: selectedPackage?.id, checkoutId: checkoutId || null, phone }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      showMsg(msgEl, data.message || "Connected.", "success");
+      showConnected(data.expiresAt);
+    } else {
+      showMsg(msgEl, data.message || "Unable to connect with the M-Pesa code.", "error");
+      btn.disabled = false;
+    }
+  } catch {
+    showMsg(msgEl, "Network error — please try again.", "error");
+    btn.disabled = false;
+  }
+});
+
+async function connectMpesa(input, msgEl, ckId) {
+  if (!input.trim()) {
+    showMsg(msgEl, "Paste your M-Pesa SMS or transaction code.", "error");
+    return;
+  }
+
+  if (!ckId && !checkoutId && !selectedPackageForMpesa && !selectedPackage) {
+    showMsg(msgEl, "Select a package first, then paste your M-Pesa code.", "error");
+    return;
+  }
+
+  const btn = msgEl.id === "mpesaMsg"
+    ? document.getElementById("mpesaBtn")
+    : document.getElementById("modalMpesaBtn");
+
+  btn.disabled = true;
+  hideMsg(msgEl);
+  setStep(4);
+
+  try {
+    const phone = document.getElementById("phoneInput")?.value?.trim() || null;
+    const res = await fetch("/api/mpesa-connect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        input,
+        packageId: selectedPackageForMpesa?.id || selectedPackage?.id,
+        checkoutId: ckId || checkoutId,
+        phone,
+      }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      showConnected(data.expiresAt);
+    } else {
+      showMsg(msgEl, data.message, "error");
+      btn.disabled = false;
+    }
+  } catch {
+    showMsg(msgEl, "Network error — please try again.", "error");
+    btn.disabled = false;
+  }
+}
+
+
+/* ── Init ── */
+loadData();
+loadSavedPhone();
+fetch("/api/status").then((r) => r.json()).then((s) => {
+  if (s.authorized) showConnected(s.expiresAt);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+DNS server error (are you running as Administrator?): bind EADDRINUSE 0.0.0.0:53
+Supabase fetchPendingPayments error: JWT issued at future

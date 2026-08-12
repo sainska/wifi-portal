@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — FREE FAST WiFi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0b0f14;
+    --panel: #12161d;
+    --card: #171c25;
+    --card-hover: #1c222d;
+    --border: rgba(255,255,255,0.08);
+    --border-soft: rgba(255,255,255,0.05);
+    --mpesa: #00a651;
+    --mpesa-soft: rgba(0,166,81,0.14);
+    --marigold: #e8a33d;
+    --marigold-soft: rgba(232,163,61,0.14);
+    --coral: #ff5a5f;
+    --coral-soft: rgba(255,90,95,0.14);
+    --info: #4c8dff;
+    --info-soft: rgba(76,141,255,0.14);
+    --text: #f5f3ee;
+    --muted: #8a8f98;
+    --muted-soft: #5c6169;
+    --font-display: "Space Grotesk", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font-display);
+    background: var(--ink);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--mpesa-soft); color: var(--text); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .hidden { display: none !important; }
+  button, input { font-family: inherit; }
+  a { color: var(--info); }
+
+  /* ── Blocked screen ── */
+  .blocked-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px;
+    gap: 10px;
+  }
+  .blocked-screen h2 { font-size: 1.3rem; }
+  .blocked-screen p { color: var(--muted); font-size: 0.92rem; }
+  .blocked-screen code {
+    font-family: var(--font-mono);
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-top: 6px;
+    display: inline-block;
+  }
+
+  /* ── Shell ── */
+  .shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 18px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--mpesa), #007a3d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .brand-mark svg { width: 18px; height: 18px; }
+  .brand-text .name { font-weight: 700; font-size: 0.92rem; letter-spacing: -0.01em; }
+  .brand-text .eyebrow { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  .pulse-rail {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .pulse-bar {
+    width: 5px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: height 0.4s ease, background 0.4s ease;
+  }
+  .pulse-bar.lit { background: var(--mpesa); box-shadow: 0 0 6px rgba(0,166,81,0.5); }
+  .pulse-label { margin-left: 8px; font-size: 0.7rem; color: var(--muted); align-self: center; }
+
+  .nav-list { list-style: none; padding: 10px 10px; display: grid; gap: 2px; flex: 1; overflow-y: auto; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 9px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.14s ease, color 0.14s ease;
+  }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+  .nav-item:hover { background: var(--card); color: var(--text); }
+  .nav-item.active { background: var(--mpesa-soft); color: var(--mpesa); }
+  .nav-item.active svg { opacity: 1; }
+  .nav-badge {
+    margin-left: auto;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.1);
+    color: var(--text);
+    font-size: 0.66rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+  }
+  .nav-item.active .nav-badge { background: rgba(0,166,81,0.3); color: var(--mpesa); }
+  .nav-badge.urgent { background: var(--coral); color: #fff; }
+
+  .sidebar-footer {
+    padding: 14px 16px 18px;
+    border-top: 1px solid var(--border-soft);
+    display: grid;
+    gap: 10px;
+  }
+  .pin-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0 4px 0 10px;
+  }
+  .pin-field svg { width: 13px; height: 13px; color: var(--muted); flex-shrink: 0; }
+  .pin-field input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    padding: 9px 4px;
+    font-size: 0.82rem;
+    font-family: var(--font-mono);
+    min-width: 0;
+  }
+  .sidebar-link-row { display: flex; gap: 8px; }
+  .side-btn {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .side-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+  .sidebar-url {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--muted-soft);
+    word-break: break-all;
+    line-height: 1.4;
+  }
+
+  /* ── Main ── */
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border-soft);
+    position: sticky;
+    top: 0;
+    background: rgba(11,15,20,0.9);
+    backdrop-filter: blur(10px);
+    z-index: 15;
+  }
+  .search-box {
+    flex: 1;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 12px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .search-box:hover { border-color: rgba(255,255,255,0.18); }
+  .search-box svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .search-box span { font-size: 0.82rem; flex: 1; }
+  .kbd {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 6px;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+  .topbar-notify { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:0.86rem; }
+  .topbar-notify input { accent-color: var(--info); }
+  .freshness { display: flex; align-items: center; gap: 7px; font-size: 0.76rem; color: var(--muted); }
+  .fresh-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mpesa); flex-shrink: 0; }
+  .fresh-dot.stale { background: var(--marigold); }
+  .fresh-dot.dead { background: var(--coral); }
+  .btn {
+    padding: 9px 14px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+  }
+  .btn:hover { border-color: rgba(255,255,255,0.2); }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn.primary { background: var(--mpesa); border-color: var(--mpesa); color: #06180d; }
+  .btn.danger { background: var(--coral); border-color: var(--coral); color: #2b0505; }
+  .btn.ghost { background: transparent; }
+  .btn.sm { padding: 6px 10px; font-size: 0.76rem; border-radius: 7px; }
+
+  .content { padding: 24px 28px 60px; max-width: 1400px; }
+
+  /* ── Alert banner ── */
+  .alert-banner { display: grid; gap: 8px; margin-bottom: 20px; }
+  .alert-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .alert-item.crit { background: var(--coral-soft); border: 1px solid rgba(255,90,95,0.3); color: #ffb3b5; }
+  .alert-item.warn { background: var(--marigold-soft); border: 1px solid rgba(232,163,61,0.3); color: #f3c988; }
+
+  /* ── Sections ── */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .kpi-card .kpi-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 10px; }
+  .kpi-card .kpi-value { font-family: var(--font-mono); font-size: 1.7rem; font-weight: 700; }
+  .kpi-card.hero { grid-column: span 1; background: linear-gradient(155deg, var(--mpesa-soft), var(--card) 60%); border-color: rgba(0,166,81,0.3); }
+  .kpi-card.hero .kpi-value { color: var(--mpesa); font-size: 1.9rem; }
+  .kpi-delta { font-size: 0.72rem; margin-top: 6px; color: var(--muted); }
+
+  .grid-3 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 16px; margin-bottom: 22px; align-items: start; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--border-soft);
+    font-weight: 700;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .card-head .module-label { font-size: 0.66rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; }
+  .card-body { padding: 16px 18px; }
+  .status-list { display: grid; gap: 8px; }
+  .status-flag { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; font-size: 0.85rem; border-bottom: 1px solid var(--border-soft); }
+  .status-flag:last-child { border-bottom: none; }
+  .status-flag span:last-child { font-family: var(--font-mono); font-weight: 600; font-size: 0.78rem; }
+
+  .perf-row { display: grid; grid-template-columns: 110px 1fr 74px; align-items: center; gap: 10px; padding: 7px 0; font-size: 0.8rem; }
+  .perf-row .perf-name { font-weight: 600; }
+  .perf-track { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .perf-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--marigold), var(--mpesa)); }
+  .perf-amount { text-align: right; color: var(--muted); font-family: var(--font-mono); font-size: 0.76rem; }
+
+  /* ── Section header row (title + tools) ── */
+  .section-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .section-toolbar h2 { font-size: 1.05rem; font-weight: 700; }
+  .toolbar-tools { display: flex; gap: 8px; align-items: center; }
+  .filter-input {
+    padding: 8px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 0.82rem;
+    width: 220px;
+  }
+  .filter-input:focus { outline: none; border-color: rgba(0,166,81,0.4); }
+
+  /* ── Tables ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-soft); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase; user-select: none; }
+  th.sortable { cursor: pointer; }
+  th.sortable:hover { color: var(--text); }
+  th .sort-arrow { opacity: 0.5; margin-left: 3px; }
+  td.mono, td code { font-family: var(--font-mono); font-size: 0.8rem; }
+  tbody tr { cursor: pointer; transition: background 0.1s ease; }
+  tbody tr:hover td { background: var(--card-hover); }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+  .badge.pending { background: var(--marigold-soft); color: var(--marigold); }
+  .badge.paid { background: var(--mpesa-soft); color: var(--mpesa); }
+  .badge.rejected { background: var(--coral-soft); color: var(--coral); }
+  .badge.connected { background: var(--mpesa-soft); color: var(--mpesa); }
+  .badge.not-connected { background: var(--coral-soft); color: var(--coral); }
+  .empty { padding: 40px; text-align: center; color: var(--muted); font-size: 0.88rem; }
+  .row-actions { display: flex; gap: 6px; }
+
+  .density-compact th, .density-compact td { padding: 6px 14px; }
+
+  /* ── Drawer ── */
+  .drawer-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
+    display: none; align-items: stretch; justify-content: flex-end; z-index: 60;
+  }
+  .drawer-overlay.open { display: flex; }
+  .drawer {
+    width: 380px; max-width: 92vw; background: var(--panel); border-left: 1px solid var(--border);
+    display: flex; flex-direction: column; animation: drawer-in 0.2s ease;
+  }
+  @keyframes drawer-in { from { transform: translateX(20px); opacity: 0.4; } to { transform: translateX(0); opacity: 1; } }
+  .drawer-head { padding: 18px 20px; border-bottom: 1px solid var(--border-soft); display: flex; align-items: center; justify-content: space-between; }
+  .drawer-head h3 { font-size: 0.95rem; }
+  .drawer-close { background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; line-height: 1; }
+  .drawer-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
+  .kv-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border-soft); font-size: 0.83rem; }
+  .kv-row .k { color: var(--muted); }
+  .kv-row .v { font-family: var(--font-mono); text-align: right; word-break: break-all; }
+  .drawer-actions { padding: 16px 20px; border-top: 1px solid var(--border-soft); display: flex; gap: 8px; }
+
+  /* ── Command palette ── */
+  .cmdk-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    display: none; align-items: flex-start; justify-content: center; padding-top: 12vh; z-index: 70;
+  }
+  .cmdk-overlay.open { display: flex; }
+  .cmdk-box { width: 560px; max-width: 92vw; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
+  .cmdk-input { width: 100%; padding: 16px 18px; background: transparent; border: none; outline: none; color: var(--text); font-size: 0.95rem; border-bottom: 1px solid var(--border-soft); }
+  .cmdk-list { max-height: 340px; overflow-y: auto; padding: 8px; }
+  .cmdk-item { padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
+  .cmdk-item .cmdk-hint { color: var(--muted); font-size: 0.72rem; font-family: var(--font-mono); }
+  .cmdk-item.hi { background: var(--mpesa-soft); color: var(--mpesa); }
+  .cmdk-empty { padding: 24px; text-align: center; color: var(--muted); font-size: 0.85rem; }
+
+  /* ── Toasts ── */
+  .toast-stack { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: grid; gap: 10px; max-width: 360px; }
+  .toast { padding: 14px 16px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--info); font-size: 0.86rem; box-shadow: 0 12px 32px rgba(0,0,0,0.4); animation: toast-in 0.2s ease; }
+  .toast.success { border-left-color: var(--mpesa); }
+  .toast.error { border-left-color: var(--coral); }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 1100px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .nav-list { display: flex; overflow-x: auto; padding: 8px 10px; }
+    .nav-item { flex-direction: column; gap: 4px; white-space: nowrap; }
+    .nav-badge { margin-left: 2px; }
+    .content { padding: 18px; }
+    .topbar { padding: 12px 18px; flex-wrap: wrap; }
+  }
+
+  /* ── Analytics visuals ── */
+  .analytics-grid { display: grid; grid-template-columns: 1fr 420px; gap: 16px; margin-bottom: 18px; }
+  .analytics-funnel { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .funnel-step { display:flex; align-items:center; gap:12px; }
+  .funnel-bar { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.04); flex: 1; overflow: hidden; }
+  .funnel-fill { height:100%; background: linear-gradient(90deg,var(--mpesa),var(--marigold)); }
+  .funnel-label { width: 140px; font-size:0.86rem; color:var(--muted); }
+
+  .peak-hours-chart { padding: 14px; display:flex; flex-direction:column; gap:8px; }
+  .peak-bars { display:flex; gap:6px; align-items:end; height:120px; }
+  .peak-bar { width:18px; border-radius:6px 6px 0 0; background:linear-gradient(180deg,var(--info),var(--mpesa)); display:flex; align-items:flex-end; justify-content:center; }
+  .peak-labels { display:flex; gap:6px; justify-content:space-between; font-size:0.7rem; color:var(--muted); }
+
+  /* ── Bulk action bar ── */
+  .bulk-action-bar { display:flex; gap:10px; align-items:center; padding:10px 12px; border-radius:10px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid var(--border); margin-bottom:12px; }
+  .bulk-action-bar .count { font-weight:700; font-family:var(--font-mono); color:var(--text); }
+
+  /* ── Manual cash-sale modal ── */
+  .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:120; }
+  .modal-overlay.open { display:flex; }
+  .modal { width: 520px; max-width: 94vw; background: var(--panel); border:1px solid var(--border); border-radius:12px; padding:18px; }
+  .modal h3 { margin-bottom:8px; }
+  .modal .form-row { display:flex; gap:8px; margin-bottom:10px; }
+  .modal input, .modal select { flex:1; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); }
+  .modal .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+  .extend-session-info {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin: -2px 0 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--info-soft);
+    border: 1px solid rgba(76,141,255,0.2);
+  }
+  .extend-session-info.live {
+    color: var(--mpesa);
+    background: var(--mpesa-soft);
+    border-color: rgba(0,166,81,0.25);
+  }
+</style>
+</head>
+<body>
+
+<div id="blocked" class="blocked-screen hidden">
+  <h2>Admin access restricted</h2>
+  <p>Open this page on the laptop running the portal:</p>
+  <code>http://192.168.137.1/admin</code>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- Command palette -->
+<div class="cmdk-overlay" id="cmdkOverlay">
+  <div class="cmdk-box">
+    <input class="cmdk-input" id="cmdkInput" placeholder="Jump to a section, device, or payment…" autocomplete="off" />
+    <div class="cmdk-list" id="cmdkList"></div>
+  </div>
+</div>
+
+<!-- Drill-down drawer -->
+<div class="drawer-overlay" id="drawerOverlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h3 id="drawerTitle">Details</h3>
+      <button class="drawer-close" id="drawerClose">&times;</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-actions hidden" id="drawerActions"></div>
+  </div>
+</div>
+
+  <!-- Manual cash-sale modal -->
+  <div class="modal-overlay" id="manualSaleModal">
+    <div class="modal">
+      <h3>Manual cash sale</h3>
+      <div class="form-row">
+        <input id="manual_ip" placeholder="Customer IP (optional)" />
+        <input id="manual_mac" placeholder="Customer MAC (optional)" />
+      </div>
+      <div class="form-row">
+        <input id="manual_phone" placeholder="Phone (optional)" />
+        <input id="manual_amount" placeholder="Amount (KES)" />
+      </div>
+      <div class="form-row">
+        <select id="manual_package"><option value="">Select package (optional)</option></select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" id="cancelManualSale">Cancel</button>
+        <button class="btn primary" id="submitManualSale">Authorize</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="extendAccessModal">
+    <div class="modal">
+      <h3>Extend package access</h3>
+      <div class="form-row">
+        <input id="extend_ip" list="extend_ip_list" placeholder="Device IP" autocomplete="off" />
+        <datalist id="extend_ip_list"></datalist>
+        <input id="extend_mac" list="extend_mac_list" placeholder="Device MAC" autocomplete="off" class="mono" />
+        <datalist id="extend_mac_list"></datalist>
+      </div>
+      <p id="extend_session_info" class="extend-session-info hidden"></p>
+      <div class="form-row">
+        <input id="extend_phone" placeholder="Phone (optional)" />
+        <input id="extend_amount" placeholder="Amount (KES, optional)" />
+      </div>
+      <div class="form-row">
+        <select id="extend_package"><option value="">Select package</option></select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" id="cancelExtendAccess">Cancel</button>
+        <button class="btn primary" id="submitExtendAccess">Extend access</button>
+      </div>
+    </div>
+  </div>
+
+<div id="app" class="hidden">
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#06180d" stroke-width="2.4"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        </div>
+        <div class="brand-text">
+          <div class="name">FREE FAST WiFi</div>
+          <div class="eyebrow">Operator Console</div>
+        </div>
+      </div>
+
+      <div class="pulse-rail" id="pulseRail" title="Live device pulse">
+        <div class="pulse-bar" data-bar="1"></div>
+        <div class="pulse-bar" data-bar="2"></div>
+        <div class="pulse-bar" data-bar="3"></div>
+        <div class="pulse-bar" data-bar="4"></div>
+        <div class="pulse-bar" data-bar="5"></div>
+        <span class="pulse-label" id="pulseLabel">0 online</span>
+      </div>
+
+      <ul class="nav-list" id="navList">
+        <li><button class="nav-item active" data-section="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Overview</button></li>
+        <li><button class="nav-item" data-section="analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M6 17V9M12 21V5M18 21v-9"/></svg>Analytics<span class="nav-badge hidden" id="navBadge-analytics">0</span></button></li>
+        <li><button class="nav-item" data-section="pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Pending<span class="nav-badge hidden" id="navBadge-pending">0</span></button></li>
+        <li><button class="nav-item" data-section="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h4"/></svg>Payments<span class="nav-badge hidden" id="navBadge-history">0</span></button></li>
+        <li><button class="nav-item" data-section="devices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2"/><path d="M5 13l2 2c2.76-2.76 7.24-2.76 10 0l2-2"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></svg>Devices<span class="nav-badge hidden" id="navBadge-devices">0</span></button></li>
+        <li><button class="nav-item" data-section="codes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="4"/><path d="M11 11l9 9M17 15l3-3"/></svg>Codes<span class="nav-badge hidden" id="navBadge-codes">0</span></button></li>
+        <li><button class="nav-item" data-section="vouchers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8a2 2 0 012-2h14a2 2 0 012 2v2a2 2 0 000 4v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2a2 2 0 000-4V8z"/></svg>Vouchers<span class="nav-badge hidden" id="navBadge-vouchers">0</span></button></li>
+        <li><button class="nav-item" data-section="connections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8M14 6l6 6-6 6M10 6l-6 6 6 6"/></svg>Connections<span class="nav-badge hidden" id="navBadge-connections">0</span></button></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="pin-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
+          <input type="password" id="adminPin" placeholder="Admin PIN" autocomplete="off" />
+        </div>
+        <div class="sidebar-link-row">
+          <button class="side-btn" id="refreshBtn">Refresh</button>
+          <a class="side-btn" href="/">Portal ↗</a>
+        </div>
+        <div class="sidebar-url" id="adminUrl">http://192.168.137.1/admin</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="search-box" id="openCmdk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <span>Search devices, payments, codes…</span>
+          <span class="kbd">⌘K</span>
+        </div>
+        <div class="topbar-right">
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.76rem;color:var(--muted);cursor:pointer;">
+            <input type="checkbox" id="densityToggle" style="accent-color:var(--mpesa)" /> Compact
+          </label>
+          <label class="topbar-notify"><input type="checkbox" id="notifyToggle" /> Notifications</label>
+          <button class="btn sm" id="openCashSaleBtn">Cash sale</button>
+          <button class="btn sm" id="openExtendAccessBtn">Extend access</button>
+          <div class="freshness"><span class="fresh-dot" id="freshDot"></span><span id="refreshNote">Loading…</span></div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div id="alertBanner" class="alert-banner hidden"></div>
+
+        <!-- Overview -->
+        <section class="section active" id="section-overview">
+          <div class="kpi-grid">
+            <div class="kpi-card hero">
+              <div class="kpi-label">Today's Revenue</div>
+              <div class="kpi-value" id="kpiRevenueToday">KES 0</div>
+              <div class="kpi-delta" id="kpiPaymentsToday">0 payments today</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Active Devices</div>
+              <div class="kpi-value" id="kpiActive">0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Pending Payments</div>
+              <div class="kpi-value" id="kpiPending">0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Total Revenue</div>
+              <div class="kpi-value" id="kpiRevenueTotal">KES 0</div>
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="card">
+              <div class="card-head"><span>Revenue — last 14 days</span><span class="module-label" id="sparkTotal"></span></div>
+              <div class="card-body" id="revenueSparkline" style="padding:10px 14px 4px;"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><span>Package performance</span><span class="module-label">By revenue</span></div>
+              <div class="card-body" id="packagePerf"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><span>System health</span><span class="module-label">Live</span></div>
+              <div class="card-body">
+                <div class="status-list">
+                  <div class="status-flag"><span>Supabase</span><span id="healthSupabase">Unknown</span></div>
+                  <div class="status-flag"><span>Realtime sync</span><span id="healthRealtime">Unknown</span></div>
+                  <div class="status-flag"><span>Paystack</span><span id="healthPayment">Unknown</span></div>
+                  <div class="status-flag"><span>Captive DNS :53</span><span id="healthDns">Unknown</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Analytics -->
+        <section class="section" id="section-analytics">
+          <div class="section-toolbar"><h2>Analytics</h2></div>
+          <div class="grid-3">
+            <div class="card">
+              <div class="card-head"><span>Funnel</span><span class="module-label">Conversion stages</span></div>
+              <div class="card-body analytics-funnel" id="analyticsFunnel">
+                <!-- funnel steps rendered here -->
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><span>Peak hours</span><span class="module-label">By payments</span></div>
+              <div class="card-body peak-hours-chart" id="analyticsPeak">
+                <div class="peak-bars" id="peakBars"></div>
+                <div class="peak-labels" id="peakLabels"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Pending -->
+        <section class="section" id="section-pending">
+          <div class="section-toolbar"><h2>Awaiting confirmation</h2></div>
+          <div class="bulk-action-bar hidden" id="pendingBulkBar">
+            <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pendingSelectAll" /> Select all</label>
+            <div class="count" id="pendingSelectedCount">0 selected</div>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <button class="btn primary sm" id="pendingBulkConfirm">Confirm selected</button>
+              <button class="btn danger sm" id="pendingBulkReject">Reject selected</button>
+            </div>
+          </div>
+          <div class="card"><div class="table-wrap" id="pendingTable"></div></div>
+        </section>
+
+        <!-- Payments -->
+        <section class="section" id="section-history">
+          <div class="section-toolbar">
+            <h2>Payment history</h2>
+            <div class="toolbar-tools">
+              <input class="filter-input" id="historySearch" placeholder="Search phone, IP, code…" />
+              <button class="btn sm" id="exportHistoryBtn">Export CSV</button>
+            </div>
+          </div>
+          <div class="card"><div class="table-wrap" id="historyTable"></div></div>
+        </section>
+
+        <!-- Devices -->
+        <section class="section" id="section-devices">
+          <div class="section-toolbar">
+            <h2>Live user connections</h2>
+            <div class="toolbar-tools">
+              <input class="filter-input" id="deviceSearch" placeholder="Search IP, MAC, or phone…" />
+            </div>
+          </div>
+          <div class="bulk-action-bar hidden" id="devicesBulkBar">
+            <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="devicesSelectAll" /> Select all</label>
+            <div class="count" id="devicesSelectedCount">0 selected</div>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <button class="btn danger sm" id="devicesBulkRevoke">Revoke selected</button>
+            </div>
+          </div>
+          <div class="card"><div class="table-wrap" id="devicesTable"></div></div>
+        </section>
+
+        <!-- Codes -->
+        <section class="section" id="section-codes">
+          <div class="section-toolbar"><h2>Used M-Pesa codes</h2></div>
+          <div class="card"><div class="table-wrap" id="codesTable"></div></div>
+        </section>
+
+        <!-- Vouchers -->
+        <section class="section" id="section-vouchers">
+          <div class="section-toolbar"><h2>Voucher redemptions</h2></div>
+          <div class="card"><div class="table-wrap" id="vouchersTable"></div></div>
+        </section>
+
+        <!-- Connections -->
+        <section class="section" id="section-connections">
+          <div class="section-toolbar"><h2>M-Pesa code connections</h2></div>
+          <div class="card"><div class="table-wrap" id="connectionsTable"></div></div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════ State ══════════════════════ */
+const REFRESH_INTERVAL_MS = 10_000;
+const SECTION_ORDER = ["overview","pending","history","devices","codes","vouchers","connections"];
+const $ = (s) => document.querySelector(s);
+
+let currentAdminState = null;
+let lastSuccessfulRefreshAt = null;
+let refreshTimer = null;
+let realtimeClient = null, realtimeChannel = null, supabaseScriptLoaded = false;
+let allDevicesRows = [], allHistoryRows = [];
+let sortState = { devices: { key: null, dir: 1 }, history: { key: null, dir: 1 } };
+let selectedPending = new Set();
+let selectedDevices = new Set();
+let activeDeviceForExtension = null;
+
+/* ══════════════════════ Utilities ══════════════════════ */
+const fmtTime = (ts) => ts ? new Date(ts).toLocaleString() : "—";
+const fmtMoney = (n) => n != null ? `KES ${Number(n).toLocaleString()}` : "—";
+const fmtNumber = (n) => n != null ? n : "—";
+const fmtDuration = (ms) => {
+  if (ms == null || ms <= 0) return "—";
+  const seconds = Math.floor(ms / 1000);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const parts = [];
+  if (hours) parts.push(`${hours}h`);
+  if (minutes) parts.push(`${minutes}m`);
+  if (!parts.length) parts.push(`${seconds}s`);
+  return parts.join(" ");
+};
+
+function toast(message, type = "info") {
+  const stack = $("#toastStack");
+  if (!stack) { alert(message); return; }
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.textContent = message;
+  stack.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+function getPin() {
+  const pin = (localStorage.getItem("adminPin") || $("#adminPin").value || "admin123").trim();
+  return pin || "admin123";
+}
+function savePin() { localStorage.setItem("adminPin", getPin()); }
+
+async function apiGet(path) {
+  const pin = getPin();
+  const url = new URL(path, window.location.origin);
+  url.searchParams.set("pin", pin);
+  const res = await fetch(url.toString(), {
+    headers: { "X-Admin-Pin": pin },
+  });
+  if (res.status === 403) throw new Error("forbidden");
+  return res.json();
+}
+async function apiPost(path, body) {
+  const pin = getPin();
+  const url = new URL(path, window.location.origin);
+  url.searchParams.set("pin", pin);
+  const res = await fetch(url.toString(), {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Admin-Pin": pin },
+    body: JSON.stringify(body),
+  });
+  return res.json();
+}
+
+function readAdminCache() {
+  try {
+    const raw = localStorage.getItem("wifiAdminCache");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || Date.now() - (parsed.savedAt || 0) > 20_000) return null;
+    return parsed.value;
+  } catch { return null; }
+}
+function writeAdminCache(value) {
+  try { localStorage.setItem("wifiAdminCache", JSON.stringify({ value, savedAt: Date.now() })); } catch {}
+}
+
+/* ══════════════════════ Navigation ══════════════════════ */
+function activateSection(name) {
+  const nav = document.querySelector(`.nav-item[data-section="${name}"]`);
+  const section = document.getElementById(`section-${name}`);
+  if (!nav || !section) return;
+  document.querySelectorAll(".nav-item").forEach((n) => n.classList.remove("active"));
+  document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
+  nav.classList.add("active");
+  section.classList.add("active");
+  try { localStorage.setItem("adminActiveSection", name); } catch {}
+}
+
+document.querySelectorAll(".nav-item").forEach((nav) => {
+  nav.addEventListener("click", () => activateSection(nav.dataset.section));
+});
+
+/* ══════════════════════ Pulse rail ══════════════════════ */
+function updatePulseRail(activeCount) {
+  const lit = Math.min(5, Math.ceil(activeCount / 3) || (activeCount > 0 ? 1 : 0));
+  document.querySelectorAll(".pulse-bar").forEach((bar, i) => {
+    const isLit = i < lit;
+    bar.classList.toggle("lit", isLit);
+    bar.style.height = isLit ? `${10 + i * 4}px` : "6px";
+  });
+  $("#pulseLabel").textContent = `${activeCount} online`;
+}
+
+/* ══════════════════════ Alerts ══════════════════════ */
+function renderAlerts(dash) {
+  const banner = $("#alertBanner");
+  const alerts = [];
+  if (dash?.dnsBound === false) alerts.push({ level: "warn", text: "Captive DNS isn't bound — devices won't auto-pop the login screen. HTTP-only fallback is active." });
+  if (dash?.supabaseEnabled === false) alerts.push({ level: "warn", text: "Supabase is offline — running on local data only, remote sync is paused." });
+  if (dash?.paystackEnabled === false) alerts.push({ level: "crit", text: "Paystack is disabled — customers can't pay by STK until this is configured." });
+  if ((dash?.stats?.pendingPayments || 0) >= 5) alerts.push({ level: "crit", text: `${dash.stats.pendingPayments} payments are waiting on confirmation.` });
+
+  if (!alerts.length) { banner.classList.add("hidden"); banner.innerHTML = ""; return; }
+  banner.classList.remove("hidden");
+  banner.innerHTML = alerts.map((a) => `<div class="alert-item ${a.level}">${a.level === "crit" ? "⛔" : "⚠️"} ${a.text}</div>`).join("");
+}
+
+/* ══════════════════════ Revenue sparkline ══════════════════════ */
+function buildRevenueSeries(payments, days = 14) {
+  const buckets = new Array(days).fill(0);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  (payments || []).filter((p) => p.status === "paid" && p.paidAt).forEach((p) => {
+    const d = new Date(p.paidAt); d.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((today - d) / 86400000);
+    if (diffDays >= 0 && diffDays < days) buckets[days - 1 - diffDays] += Number(p.amount || 0);
+  });
+  return buckets;
+}
+
+function renderSparkline(values) {
+  const total = values.reduce((a, b) => a + b, 0);
+  $("#sparkTotal").textContent = fmtMoney(total);
+  const w = 520, h = 130, pad = 10;
+  const max = Math.max(...values, 1);
+  const stepX = (w - pad * 2) / (values.length - 1 || 1);
+  const points = values.map((v, i) => {
+    const x = pad + i * stepX;
+    const y = h - pad - (v / max) * (h - pad * 2 - 10);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  const areaPoints = `${pad},${h - pad} ${points} ${w - pad},${h - pad}`;
+
+  $("#revenueSparkline").innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" width="100%" height="130" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" style="stop-color:var(--mpesa);stop-opacity:0.32" />
+          <stop offset="100%" style="stop-color:var(--mpesa);stop-opacity:0" />
+        </linearGradient>
+      </defs>
+      <polyline points="${areaPoints}" style="fill:url(#sparkFill);stroke:none" />
+      <polyline points="${points}" style="fill:none;stroke:var(--mpesa);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round" />
+    </svg>`;
+}
+
+/* ══════════════════════ Package performance ══════════════════════ */
+function renderPackagePerf(payments) {
+  const el = $("#packagePerf");
+  const paid = (payments || []).filter((p) => p.status === "paid");
+  if (!paid.length) { el.innerHTML = '<div class="empty">No paid transactions yet.</div>'; return; }
+  const byPackage = {};
+  paid.forEach((p) => {
+    const key = p.packageName || p.packageId || "Unknown";
+    byPackage[key] = (byPackage[key] || 0) + Number(p.amount || 0);
+  });
+  const rows = Object.entries(byPackage).sort((a, b) => b[1] - a[1]);
+  const max = rows[0][1] || 1;
+  el.innerHTML = rows.map(([name, amount]) => `
+    <div class="perf-row">
+      <span class="perf-name">${name}</span>
+      <div class="perf-track"><div class="perf-fill" style="width:${Math.max(4, (amount / max) * 100)}%"></div></div>
+      <span class="perf-amount">${fmtMoney(amount)}</span>
+    </div>`).join("");
+}
+
+/* ══════════════════════ Nav badges ══════════════════════ */
+function updateNavBadges({ pending, devices, codes, vouchers, connections, payments }) {
+  const set = (id, count, urgent = false) => {
+    const el = $(`#${id}`);
+    if (!el) return;
+    if (!count) { el.classList.add("hidden"); return; }
+    el.textContent = count > 99 ? "99+" : count;
+    el.classList.remove("hidden");
+    el.classList.toggle("urgent", urgent);
+  };
+  set("navBadge-pending", pending.length, pending.length > 0);
+  set("navBadge-history", payments.length);
+  set("navBadge-devices", devices.filter((d) => d.liveState === "Live" || d.connectionState === "Connected").length);
+  set("navBadge-codes", Array.isArray(codes) ? codes.length : Object.keys(codes || {}).length);
+  set("navBadge-vouchers", vouchers.length);
+  set("navBadge-connections", connections.length);
+}
+
+/* ══════════════════════ Realtime (Supabase) ══════════════════════ */
+async function ensureSupabase() {
+  if (window.supabase) return true;
+  if (supabaseScriptLoaded) return false;
+  supabaseScriptLoaded = true;
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js";
+    script.async = true;
+    script.onload = () => resolve(Boolean(window.supabase));
+    script.onerror = () => resolve(false);
+    document.head.appendChild(script);
+  });
+}
+
+async function setupRealtime(config) {
+  if (!config?.supabaseEnabled || !config?.supabaseUrl || !config?.supabaseAnonKey) return;
+  const ready = await ensureSupabase();
+  if (!ready || !window.supabase) return;
+  if (realtimeClient && realtimeChannel) return;
+
+  realtimeClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, { auth: { persistSession: false } });
+  realtimeChannel = realtimeClient.channel("admin-realtime", { config: { broadcast: { self: false }, presence: { key: "admin" } } });
+
+  const subscribeTo = (table) => {
+    realtimeChannel.on("postgres_changes", { event: "*", schema: "public", table }, () => loadAll({ useCache: true, isBackground: true }));
+  };
+  ["payments", "pending_payments", "authorized_devices", "used_codes", "voucher_redemptions", "mpesa_code_connections"].forEach(subscribeTo);
+  realtimeChannel.subscribe((status) => { if (status === "SUBSCRIBED") console.info("Admin dashboard listening for live Supabase updates."); });
+}
+
+/* ══════════════════════ Drawer (drill-down) ══════════════════════ */
+function openDrawer(title, fields, actionsHtml) {
+  $("#drawerTitle").textContent = title;
+  $("#drawerBody").innerHTML = fields.map(([k, v]) => `<div class="kv-row"><span class="k">${k}</span><span class="v">${v ?? "—"}</span></div>`).join("");
+  const actions = $("#drawerActions");
+  if (actionsHtml) { actions.innerHTML = actionsHtml; actions.classList.remove("hidden"); }
+  else { actions.innerHTML = ""; actions.classList.add("hidden"); }
+  $("#drawerOverlay").classList.add("open");
+}
+function closeDrawer() { $("#drawerOverlay").classList.remove("open"); }
+$("#drawerClose").addEventListener("click", closeDrawer);
+$("#drawerOverlay").addEventListener("click", (e) => { if (e.target === $("#drawerOverlay")) closeDrawer(); });
+
+function openPendingDrawer(r) {
+  openDrawer("Pending payment", [
+    ["Checkout ID", r.checkoutId], ["Package", r.packageName], ["Amount", fmtMoney(r.amount)],
+    ["Phone", r.phone], ["MAC", r.mac], ["IP", r.ip], ["Created", fmtTime(r.createdAt)], ["Wait remaining", `${r.remainingSeconds}s`],
+  ], `
+    <button class="btn primary sm" onclick="confirmPayment('${r.checkoutId}', this)">Confirm</button>
+    <button class="btn danger sm" onclick="rejectPayment('${r.checkoutId}', this)">Reject</button>
+  `);
+}
+function openHistoryDrawer(r) {
+  openDrawer("Payment record", [
+    ["Status", r.status], ["Package", r.packageName || r.packageId], ["Amount", fmtMoney(r.amount)],
+    ["Phone", r.phone], ["IP", r.ip], ["M-Pesa code", r.mpesaCode], ["Source", r.source],
+    ["Created", fmtTime(r.createdAt)], ["Paid", fmtTime(r.paidAt)],
+  ]);
+}
+function openDeviceDrawer(r) {
+  activeDeviceForExtension = r;
+  openDrawer("Device session", [
+    ["Device", r.deviceName || "Unknown"], ["IP", r.ip], ["MAC", r.mac], ["Package", r.purchasedPackage || r.packageName],
+    ["Phone", r.phone], ["Connected since", fmtTime(r.connectedSince || r.authorizedAt)], ["Expires", fmtTime(r.expiresAt)],
+    ["Remaining", fmtDuration(r.remainingMs)], ["State", r.liveState || r.connectionState], ["Source", r.source],
+  ], `<button class="btn sm" onclick="openExtendAccess(activeDeviceForExtension); closeDrawer();">Extend access</button><button class="btn danger sm" onclick="revokeDevice('${r.mac || r.ip}', this)">Revoke access</button>`);
+}
+function openVoucherDrawer(r) {
+  openDrawer("Voucher redemption", [["Code", r.code], ["Package", r.packageId], ["Phone", r.phone], ["IP", r.ip], ["MAC", r.mac], ["Used", fmtTime(r.usedAt)]]);
+}
+function openConnectionDrawer(r) {
+  openDrawer("M-Pesa code connection", [["Checkout ID", r.checkoutId], ["Code", r.code], ["Package", r.packageId], ["Phone", r.phone], ["IP", r.ip], ["MAC", r.mac], ["Created", fmtTime(r.createdAt)], ["Expires", fmtTime(r.expiresAt)]]);
+}
+
+/* ══════════════════════ Renderers ══════════════════════ */
+function renderPending(rows) {
+  if (!rows.length) { $("#pendingTable").innerHTML = '<div class="empty">No pending payments right now.</div>'; return; }
+  $("#pendingTable").innerHTML = `<table>
+    <thead><tr><th><input type="checkbox" id="pendingHeaderCheckbox" /></th><th>Time</th><th>Package</th><th>Amount</th><th>Phone</th><th>MAC</th><th>Device IP</th><th>Wait</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map((r, i) => `
+      <tr onclick="openPendingDrawer(currentAdminState.pending[${i}])">
+        <td onclick="event.stopPropagation()"><input type="checkbox" data-pending-index="${i}" class="pending-row-checkbox" /></td>
+        <td>${fmtTime(r.createdAt)}</td>
+        <td>${r.packageName}</td>
+        <td class="mono">${fmtMoney(r.amount)}</td>
+        <td>${r.phone || "—"}</td>
+        <td class="mono">${r.mac || "—"}</td>
+        <td class="mono">${r.ip}</td>
+        <td class="mono">${r.remainingSeconds}s</td>
+        <td class="row-actions" onclick="event.stopPropagation()">
+          <button class="btn primary sm" onclick="confirmPayment('${r.checkoutId}', this)">Confirm</button>
+          <button class="btn danger sm" onclick="rejectPayment('${r.checkoutId}', this)">Reject</button>
+        </td>
+      </tr>`).join("")}</tbody>
+  </table>`;
+  // wire up checkboxes
+  document.querySelectorAll('.pending-row-checkbox').forEach((cb) => cb.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const idx = Number(cb.dataset.pendingIndex);
+    const row = currentAdminState.pending[idx];
+    if (!row) return;
+    if (cb.checked) selectedPending.add(row.checkoutId); else selectedPending.delete(row.checkoutId);
+    updatePendingSelectionUI();
+  }));
+  const header = document.getElementById('pendingHeaderCheckbox');
+  if (header) {
+    header.checked = selectedPending.size > 0 && selectedPending.size === rows.length;
+    header.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (header.checked) rows.forEach((r) => selectedPending.add(r.checkoutId)); else selectedPending.clear();
+      document.querySelectorAll('.pending-row-checkbox').forEach((c, i) => c.checked = header.checked);
+      updatePendingSelectionUI();
+    });
+  }
+}
+
+function sortRows(rows, key, dir) {
+  return [...rows].sort((a, b) => {
+    const av = a[key], bv = b[key];
+    if (av == null) return 1;
+    if (bv == null) return -1;
+    if (typeof av === "number" || typeof bv === "number") return (Number(av) - Number(bv)) * dir;
+    return String(av).localeCompare(String(bv)) * dir;
+  });
+}
+
+function renderHistory(rows) {
+  allHistoryRows = rows;
+  const query = ($("#historySearch")?.value || "").trim().toLowerCase();
+  let filtered = query ? rows.filter((r) => [r.phone, r.ip, r.mpesaCode, r.packageName, r.transactionId, r.authorizedBy, r.source, r.checkoutId].some((f) => String(f || "").toLowerCase().includes(query))) : rows;
+  if (sortState.history.key) filtered = sortRows(filtered, sortState.history.key, sortState.history.dir);
+  renderHistoryTable(filtered);
+}
+
+function renderHistoryTable(rows) {
+  if (!rows.length) { $("#historyTable").innerHTML = '<div class="empty">No payments recorded yet.</div>'; return; }
+  const arrow = (key) => sortState.history.key === key ? (sortState.history.dir === 1 ? "↑" : "↓") : "";
+  $("#historyTable").innerHTML = `<table>
+    <thead><tr>
+      <th class="sortable" onclick="toggleSort('history','paidAt')">Time <span class="sort-arrow">${arrow('paidAt')}</span></th>
+      <th class="sortable" onclick="toggleSort('history','status')">Status <span class="sort-arrow">${arrow('status')}</span></th>
+      <th>Package</th>
+      <th class="sortable" onclick="toggleSort('history','amount')">Amount <span class="sort-arrow">${arrow('amount')}</span></th>
+      <th>Phone</th><th>IP</th><th>Code</th><th>Source</th>
+    </tr></thead>
+    <tbody>${rows.map((r) => {
+      const idx = allHistoryRows.indexOf(r);
+      return `
+      <tr onclick="openHistoryDrawer(allHistoryRows[${idx}])">
+        <td>${fmtTime(r.paidAt || r.createdAt)}</td>
+        <td><span class="badge ${r.status}">${r.status}</span></td>
+        <td>${r.packageName || r.packageId}</td>
+        <td class="mono">${fmtMoney(r.amount)}</td>
+        <td>${r.phone || "—"}</td>
+        <td class="mono">${r.ip || "—"}</td>
+        <td class="mono">${r.mpesaCode || "—"}</td>
+        <td>${r.source || "—"}</td>
+      </tr>`;
+    }).join("")}</tbody>
+  </table>`;
+}
+
+function toggleSort(table, key) {
+  const state = sortState[table];
+  if (state.key === key) state.dir *= -1; else { state.key = key; state.dir = 1; }
+  if (table === "history") renderHistory(allHistoryRows);
+  if (table === "devices") renderDevices(allDevicesRows);
+}
+
+function renderDevices(rows) {
+  allDevicesRows = rows;
+  const query = ($("#deviceSearch")?.value || "").trim().toLowerCase();
+  let filtered = query ? rows.filter((r) => [r.ip, r.mac, r.phone, r.deviceName, r.packageName, r.purchaseSource, r.source, r.transactionId].some((f) => String(f || "").toLowerCase().includes(query))) : rows;
+  if (sortState.devices.key) filtered = sortRows(filtered, sortState.devices.key, sortState.devices.dir);
+  renderDevicesTable(filtered);
+}
+
+function renderDevicesTable(rows) {
+  if (!rows.length) { $("#devicesTable").innerHTML = '<div class="empty">No live user connections right now.</div>'; return; }
+  const arrow = (key) => sortState.devices.key === key ? (sortState.devices.dir === 1 ? "↑" : "↓") : "";
+  $("#devicesTable").innerHTML = `<table>
+    <thead><tr>
+      <th><input type="checkbox" id="devicesHeaderCheckbox" /></th>
+      <th>User</th><th>IP</th><th>MAC</th><th>Purchased package</th>
+      <th class="sortable" onclick="toggleSort('devices','expiresAt')">Expires <span class="sort-arrow">${arrow('expiresAt')}</span></th>
+      <th class="sortable" onclick="toggleSort('devices','remainingMs')">Remaining <span class="sort-arrow">${arrow('remainingMs')}</span></th>
+      <th>State</th><th>Phone</th><th>Actions</th>
+    </tr></thead>
+    <tbody>${rows.map((r) => {
+      const idx = allDevicesRows.indexOf(r);
+      const live = r.liveState === "Live" || r.liveState === "active" || r.connectionState === "Connected";
+      const ident = (r.mac || r.ip || '')
+      return `
+      <tr onclick="openDeviceDrawer(allDevicesRows[${idx}])">
+        <td onclick="event.stopPropagation()"><input type="checkbox" data-device-idx="${idx}" class="device-row-checkbox" /></td>
+        <td>${r.deviceName || "—"}</td>
+        <td class="mono">${r.ip}</td>
+        <td class="mono">${r.mac || "—"}</td>
+        <td>${r.purchasedPackage || r.packageName || "—"}</td>
+        <td>${fmtTime(r.expiresAt)}</td>
+        <td class="mono">${fmtDuration(r.remainingMs)}</td>
+        <td><span class="badge ${live ? "connected" : "not-connected"}">${live ? "Connected" : "Not connected"}</span></td>
+        <td>${r.phone || "—"}</td>
+        <td class="row-actions" onclick="event.stopPropagation()"><button class="btn sm" onclick="event.stopPropagation(); openExtendAccess(allDevicesRows[${idx}]);">Extend</button><button class="btn danger sm" onclick="event.stopPropagation(); revokeDevice('${ident}', this)">Revoke</button></td>
+      </tr>`;
+    }).join("")}</tbody>
+  </table>`;
+  document.querySelectorAll('.device-row-checkbox').forEach((cb) => cb.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const idx = Number(cb.dataset.deviceIdx);
+    const row = allDevicesRows[idx];
+    if (!row) return;
+    const id = row.mac || row.ip || String(idx);
+    if (cb.checked) selectedDevices.add(id); else selectedDevices.delete(id);
+    updateDevicesSelectionUI();
+  }));
+  const dheader = document.getElementById('devicesHeaderCheckbox');
+  if (dheader) {
+    dheader.checked = selectedDevices.size > 0 && selectedDevices.size === rows.length;
+    dheader.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (dheader.checked) rows.forEach((r) => selectedDevices.add(r.mac || r.ip || '')); else selectedDevices.clear();
+      document.querySelectorAll('.device-row-checkbox').forEach((c, i) => c.checked = dheader.checked);
+      updateDevicesSelectionUI();
+    });
+  }
+}
+
+function updatePendingSelectionUI() {
+  const bar = document.getElementById('pendingBulkBar');
+  const count = selectedPending.size;
+  document.getElementById('pendingSelectedCount').textContent = `${count} selected`;
+  bar.classList.toggle('hidden', count === 0);
+}
+
+function updateDevicesSelectionUI() {
+  const bar = document.getElementById('devicesBulkBar');
+  const count = selectedDevices.size;
+  document.getElementById('devicesSelectedCount').textContent = `${count} selected`;
+  bar.classList.toggle('hidden', count === 0);
+}
+
+async function pendingBulkConfirm() {
+  if (!selectedPending.size) return; savePin();
+  const ids = Array.from(selectedPending);
+  for (const id of ids) {
+    try { await apiPost('/api/admin/confirm', { checkoutId: id }); } catch (e) { console.error(e); }
+  }
+  selectedPending.clear(); updatePendingSelectionUI(); loadAll({ useCache: false });
+}
+async function pendingBulkReject() {
+  if (!selectedPending.size) return; if (!confirm('Reject selected payments?')) return; savePin();
+  const ids = Array.from(selectedPending);
+  for (const id of ids) {
+    try { await apiPost('/api/admin/reject', { checkoutId: id }); } catch (e) { console.error(e); }
+  }
+  selectedPending.clear(); updatePendingSelectionUI(); loadAll({ useCache: false });
+}
+async function devicesBulkRevoke() {
+  if (!selectedDevices.size) return; if (!confirm('Revoke access for selected devices?')) return; savePin();
+  const ids = Array.from(selectedDevices);
+  for (const id of ids) {
+    try { await apiPost('/api/admin/revoke', { identifier: id }); } catch (e) { console.error(e); }
+  }
+  selectedDevices.clear(); updateDevicesSelectionUI(); loadAll({ useCache: false });
+}
+
+function renderAnalytics(dash, payments = [], pending = [], devices = []) {
+  // Funnel: Visits -> Pending -> Paid -> Authorized
+  const pendingCount = pending.length || 0;
+  const paidCount = (payments || []).filter((p) => p.status === 'paid').length;
+  const authCount = (devices || []).filter((d) => d.liveState === 'Live' || d.connectionState === 'Connected').length;
+  const visits = Math.max(pendingCount + paidCount + authCount, 1);
+  const steps = [ ['Visits', visits], ['Pending', pendingCount], ['Paid', paidCount], ['Authorized', authCount] ];
+  const funnelEl = document.getElementById('analyticsFunnel');
+  if (funnelEl) funnelEl.innerHTML = steps.map(([label, n]) => `
+    <div class="funnel-step"><div class="funnel-label">${label}</div><div class="funnel-bar"><div class="funnel-fill" style="width:${Math.round((n / visits) * 100)}%"></div></div><div class="mono" style="width:70px;text-align:right">${n}</div></div>
+  `).join('');
+
+  // Peak hours: count payments by hour
+  const hours = new Array(24).fill(0);
+  (payments || []).forEach((p) => { const d = p.paidAt ? new Date(p.paidAt) : (p.createdAt ? new Date(p.createdAt) : null); if (d) hours[d.getHours()]++; });
+  const max = Math.max(...hours, 1);
+  const bars = hours.map((h, i) => `<div class="peak-bar" title="${i}:00 — ${h}" style="height:${Math.round((h / max) * 100)}%"></div>`).join('');
+  const labels = hours.map((h, i) => `<div style="width:18px;text-align:center">${i}</div>`).join('');
+  const peakBars = document.getElementById('peakBars');
+  const peakLabels = document.getElementById('peakLabels');
+  if (peakBars) peakBars.innerHTML = bars;
+  if (peakLabels) peakLabels.innerHTML = labels;
+}
+
+function renderCodes(codes) {
+  const entries = Array.isArray(codes) ? codes.map((entry) => [entry.code, entry]) : Object.entries(codes || {});
+  if (!entries.length) { $("#codesTable").innerHTML = '<div class="empty">No M-Pesa codes used yet.</div>'; return; }
+  $("#codesTable").innerHTML = `<table>
+    <thead><tr><th>Code</th><th>Package</th><th>Phone</th><th>MAC</th><th>IP</th><th>Used At</th></tr></thead>
+    <tbody>${entries.map(([code, meta]) => `
+      <tr>
+        <td class="mono">${code}</td>
+        <td>${meta?.packageId || "—"}</td>
+        <td>${meta?.phone || "—"}</td>
+        <td class="mono">${meta?.mac || "—"}</td>
+        <td class="mono">${meta?.ip || "—"}</td>
+        <td>${fmtTime(meta?.usedAt)}</td>
+      </tr>`).join("")}</tbody>
+  </table>`;
+}
+
+function renderVouchers(rows) {
+  if (!rows.length) { $("#vouchersTable").innerHTML = '<div class="empty">No voucher redemptions yet.</div>'; return; }
+  $("#vouchersTable").innerHTML = `<table>
+    <thead><tr><th>Code</th><th>Package</th><th>Phone</th><th>IP</th><th>MAC</th><th>Used At</th></tr></thead>
+    <tbody>${rows.map((r, i) => `
+      <tr onclick="openVoucherDrawer(currentAdminState.vouchers[${i}])">
+        <td class="mono">${r.code}</td><td>${r.packageId}</td><td>${r.phone || "—"}</td>
+        <td class="mono">${r.ip || "—"}</td><td class="mono">${r.mac || "—"}</td><td>${fmtTime(r.usedAt)}</td>
+      </tr>`).join("")}</tbody>
+  </table>`;
+}
+
+function renderConnections(rows) {
+  if (!rows.length) { $("#connectionsTable").innerHTML = '<div class="empty">No M-Pesa connections yet.</div>'; return; }
+  $("#connectionsTable").innerHTML = `<table>
+    <thead><tr><th>Checkout ID</th><th>Code</th><th>Package</th><th>Phone</th><th>IP</th><th>MAC</th><th>Created</th><th>Expires</th></tr></thead>
+    <tbody>${rows.map((r, i) => `
+      <tr onclick="openConnectionDrawer(currentAdminState.connections[${i}])">
+        <td class="mono">${r.checkoutId || "—"}</td><td class="mono">${r.code}</td><td>${r.packageId}</td>
+        <td>${r.phone || "—"}</td><td class="mono">${r.ip || "—"}</td><td class="mono">${r.mac || "—"}</td>
+        <td>${fmtTime(r.createdAt)}</td><td>${fmtTime(r.expiresAt)}</td>
+      </tr>`).join("")}</tbody>
+  </table>`;
+}
+
+/* ══════════════════════ Actions ══════════════════════ */
+async function confirmPayment(checkoutId, btn) {
+  if (btn.disabled) return;
+  btn.disabled = true;
+  savePin();
+  try {
+    const data = await apiPost("/api/admin/confirm", { checkoutId });
+    toast(data.message, data.success ? "success" : "error");
+    closeDrawer();
+    loadAll({ useCache: false, isBackground: false });
+  } catch { toast("Network error — the confirm may not have gone through.", "error"); btn.disabled = false; }
+}
+async function rejectPayment(checkoutId, btn) {
+  if (btn.disabled) return;
+  if (!confirm("Reject this payment?")) return;
+  btn.disabled = true;
+  savePin();
+  try {
+    const data = await apiPost("/api/admin/reject", { checkoutId });
+    toast(data.message, data.success ? "success" : "error");
+    closeDrawer();
+    loadAll({ useCache: false, isBackground: false });
+  } catch { toast("Network error — the reject may not have gone through.", "error"); btn.disabled = false; }
+}
+async function revokeDevice(identifier, btn) {
+  if (btn.disabled) return;
+  if (!confirm(`Revoke access for ${identifier}?`)) return;
+  btn.disabled = true;
+  savePin();
+  try {
+    const data = await apiPost("/api/admin/revoke", { identifier });
+    toast(data.message, data.success ? "success" : "error");
+    closeDrawer();
+    loadAll({ useCache: false, isBackground: false });
+  } catch { toast("Network error — the revoke may not have gone through.", "error"); btn.disabled = false; }
+}
+
+function exportHistoryCsv() {
+  const rows = currentAdminState?.payments || [];
+  if (!rows.length) { toast("No payment history to export yet.", "error"); return; }
+  const headers = ["Time", "Status", "Package", "Amount", "Phone", "IP", "Code", "Source"];
+  const lines = [headers.join(",")];
+  rows.forEach((r) => {
+    const line = [fmtTime(r.paidAt || r.createdAt), r.status || "", r.packageName || r.packageId || "", r.amount ?? "", r.phone || "", r.ip || "", r.mpesaCode || "", r.source || ""]
+      .map((v) => `"${String(v).replace(/"/g, '""')}"`);
+    lines.push(line.join(","));
+  });
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `payments-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ══════════════════════ Main render pass ══════════════════════ */
+function applyAdminState(dash, pending, payments, devices, codes, vouchers, connections) {
+  $("#app").classList.remove("hidden");
+  $("#blocked").classList.add("hidden");
+
+  $("#kpiActive").textContent = fmtNumber(dash?.stats?.activeDevices);
+  $("#kpiPending").textContent = fmtNumber(dash?.stats?.pendingPayments);
+  $("#kpiRevenueToday").textContent = fmtMoney(dash?.stats?.revenueToday);
+  $("#kpiRevenueTotal").textContent = fmtMoney(dash?.stats?.revenueTotal);
+  $("#kpiPaymentsToday").textContent = `${fmtNumber(dash?.stats?.paymentsToday || 0)} payments today`;
+  $("#adminUrl").textContent = dash?.adminUrl || 'http://192.168.137.1/admin';
+
+  $("#healthSupabase").textContent = dash?.supabaseEnabled ? 'Online' : 'Offline';
+  $("#healthRealtime").textContent = dash?.realtime ? 'Enabled' : 'Disabled';
+  $("#healthPayment").textContent = dash?.paystackEnabled ? 'Enabled' : 'Disabled';
+  const dnsEl = $("#healthDns");
+  if (dash?.dnsBound === true) { dnsEl.textContent = 'Bound'; dnsEl.style.color = 'var(--mpesa)'; }
+  else if (dash?.dnsBound === false) { dnsEl.textContent = 'Not bound (HTTP-only)'; dnsEl.style.color = 'var(--marigold)'; }
+  else { dnsEl.textContent = 'Unknown'; dnsEl.style.color = 'var(--muted)'; }
+
+  renderPending(Array.isArray(pending) ? pending : []);
+  renderHistory(Array.isArray(payments) ? payments : []);
+  renderDevices(Array.isArray(devices) ? devices : []);
+  renderCodes(codes || []);
+  renderVouchers(Array.isArray(vouchers) ? vouchers : []);
+  renderConnections(Array.isArray(connections) ? connections : []);
+  renderAlerts(dash);
+  renderSparkline(buildRevenueSeries(Array.isArray(payments) ? payments : []));
+  renderPackagePerf(Array.isArray(payments) ? payments : []);
+  renderAnalytics(dash, Array.isArray(payments) ? payments : [], Array.isArray(pending) ? pending : [], Array.isArray(devices) ? devices : []);
+  updatePulseRail(dash?.stats?.activeDevices || 0);
+  updateNavBadges({
+    pending: Array.isArray(pending) ? pending : [],
+    devices: Array.isArray(devices) ? devices : [],
+    codes: codes || [],
+    vouchers: Array.isArray(vouchers) ? vouchers : [],
+    connections: Array.isArray(connections) ? connections : [],
+    payments: Array.isArray(payments) ? payments : [],
+  });
+
+  const dot = $("#freshDot");
+  dot.className = "fresh-dot";
+  const note = lastSuccessfulRefreshAt
+    ? `Updated ${new Date(lastSuccessfulRefreshAt).toLocaleTimeString()}`
+    : "Loading…";
+  $("#refreshNote").textContent = note;
+}
+
+async function loadAll(options = {}) {
+  const { useCache = true } = options;
+  const cached = useCache ? readAdminCache() : null;
+  if (cached) {
+    currentAdminState = cached;
+    applyAdminState(cached.dash, cached.pending, cached.payments, cached.devices, cached.codes, cached.vouchers, cached.connections);
+  }
+
+  try {
+    const [dashResult, pendingResult, paymentsResult, devicesResult, codesResult, vouchersResult, connectionsResult] = await Promise.allSettled([
+      apiGet("/api/admin/dashboard"), apiGet("/api/admin/pending"), apiGet("/api/admin/payments"),
+      apiGet("/api/admin/devices"), apiGet("/api/admin/codes"), apiGet("/api/admin/vouchers"), apiGet("/api/admin/mpesa-connections"),
+    ]);
+
+    if (dashResult.status === "rejected") throw dashResult.reason;
+
+    const dash = dashResult.value;
+    const pending = pendingResult.status === "fulfilled" ? pendingResult.value : currentAdminState?.pending || [];
+    const payments = paymentsResult.status === "fulfilled" ? paymentsResult.value : currentAdminState?.payments || [];
+    const devices = devicesResult.status === "fulfilled" ? devicesResult.value : currentAdminState?.devices || [];
+    const codes = codesResult.status === "fulfilled" ? codesResult.value : currentAdminState?.codes || [];
+    const vouchers = vouchersResult.status === "fulfilled" ? vouchersResult.value : currentAdminState?.vouchers || [];
+    const connections = connectionsResult.status === "fulfilled" ? connectionsResult.value : currentAdminState?.connections || [];
+
+    const nextState = { dash, pending, payments, devices, codes, vouchers, connections };
+    currentAdminState = nextState;
+    lastSuccessfulRefreshAt = Date.now();
+    writeAdminCache(nextState);
+    applyAdminState(dash, pending, payments, devices, codes, vouchers, connections);
+    await setupRealtime(dash);
+  } catch (e) {
+    if (e.message === "forbidden") {
+      $("#app").classList.add("hidden");
+      $("#blocked").classList.remove("hidden");
+      return;
+    }
+    const dot = $("#freshDot");
+    dot.className = "fresh-dot dead";
+    if (!currentAdminState) { $("#refreshNote").textContent = "Unable to load admin data yet."; return; }
+    $("#refreshNote").textContent = `Refresh failed · last update ${new Date(lastSuccessfulRefreshAt || Date.now()).toLocaleTimeString()}`;
+  }
+}
+
+function startAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => {
+    if (document.hidden) return;
+    const dot = $("#freshDot");
+    if (dot && !dot.classList.contains("dead")) dot.classList.add("stale");
+    loadAll({ useCache: true, isBackground: true });
+  }, REFRESH_INTERVAL_MS);
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) loadAll({ useCache: true, isBackground: true }); });
+
+/* ══════════════════════ Command palette ══════════════════════ */
+const STATIC_COMMANDS = [
+  { label: "Go to Overview", hint: "section", run: () => activateSection("overview") },
+  { label: "Go to Pending", hint: "section", run: () => activateSection("pending") },
+  { label: "Go to Payments", hint: "section", run: () => activateSection("history") },
+  { label: "Go to Devices", hint: "section", run: () => activateSection("devices") },
+  { label: "Go to Codes", hint: "section", run: () => activateSection("codes") },
+  { label: "Go to Vouchers", hint: "section", run: () => activateSection("vouchers") },
+  { label: "Go to Connections", hint: "section", run: () => activateSection("connections") },
+  { label: "Refresh data", hint: "action", run: () => loadAll({ useCache: false, isBackground: false }) },
+  { label: "Export payments CSV", hint: "action", run: () => exportHistoryCsv() },
+];
+
+let cmdkHighlight = 0;
+let cmdkResults = [];
+
+function buildCmdkResults(query) {
+  const q = query.trim().toLowerCase();
+  const results = [];
+  STATIC_COMMANDS.forEach((c) => { if (!q || c.label.toLowerCase().includes(q)) results.push({ label: c.label, hint: c.hint, run: c.run }); });
+
+  if (q.length >= 2) {
+    (currentAdminState?.devices || []).forEach((d) => {
+      if ([d.ip, d.mac, d.phone, d.deviceName].some((f) => String(f || "").toLowerCase().includes(q))) {
+        results.push({ label: `Device — ${d.ip} (${d.mac || "no MAC"})`, hint: "device", run: () => { activateSection("devices"); openDeviceDrawer(d); } });
+      }
+    });
+    (currentAdminState?.pending || []).forEach((p) => {
+      if ([p.checkoutId, p.phone, p.mac].some((f) => String(f || "").toLowerCase().includes(q))) {
+        results.push({ label: `Pending — ${p.packageName} · ${p.phone || p.ip}`, hint: "pending", run: () => { activateSection("pending"); openPendingDrawer(p); } });
+      }
+    });
+    (currentAdminState?.payments || []).forEach((p) => {
+      if ([p.mpesaCode, p.phone, p.ip].some((f) => String(f || "").toLowerCase().includes(q))) {
+        results.push({ label: `Payment — ${p.packageName || p.packageId} · ${p.mpesaCode || p.phone || p.ip}`, hint: "payment", run: () => { activateSection("history"); openHistoryDrawer(p); } });
+      }
+    });
+  }
+  return results.slice(0, 12);
+}
+
+function renderCmdkResults() {
+  const list = $("#cmdkList");
+  if (!cmdkResults.length) { list.innerHTML = '<div class="cmdk-empty">No matches. Try a section name, IP, MAC, phone, or code.</div>'; return; }
+  list.innerHTML = cmdkResults.map((r, i) => `<div class="cmdk-item ${i === cmdkHighlight ? "hi" : ""}" data-i="${i}">${r.label}<span class="cmdk-hint">${r.hint}</span></div>`).join("");
+  list.querySelectorAll(".cmdk-item").forEach((el) => {
+    el.addEventListener("click", () => runCmdk(Number(el.dataset.i)));
+  });
+}
+function runCmdk(i) {
+  const cmd = cmdkResults[i];
+  if (!cmd) return;
+  cmd.run();
+  closeCmdk();
+}
+function openCmdk() {
+  $("#cmdkOverlay").classList.add("open");
+  $("#cmdkInput").value = "";
+  cmdkHighlight = 0;
+  cmdkResults = buildCmdkResults("");
+  renderCmdkResults();
+  setTimeout(() => $("#cmdkInput").focus(), 10);
+}
+function closeCmdk() { $("#cmdkOverlay").classList.remove("open"); }
+
+$("#openCmdk").addEventListener("click", openCmdk);
+$("#cmdkOverlay").addEventListener("click", (e) => { if (e.target === $("#cmdkOverlay")) closeCmdk(); });
+$("#cmdkInput").addEventListener("input", (e) => {
+  cmdkHighlight = 0;
+  cmdkResults = buildCmdkResults(e.target.value);
+  renderCmdkResults();
+});
+$("#cmdkInput").addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown") { e.preventDefault(); cmdkHighlight = Math.min(cmdkResults.length - 1, cmdkHighlight + 1); renderCmdkResults(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); cmdkHighlight = Math.max(0, cmdkHighlight - 1); renderCmdkResults(); }
+  else if (e.key === "Enter") { e.preventDefault(); runCmdk(cmdkHighlight); }
+  else if (e.key === "Escape") { closeCmdk(); }
+});
+
+/* ══════════════════════ Keyboard shortcuts ══════════════════════ */
+document.addEventListener("keydown", (e) => {
+  const tag = document.activeElement?.tagName;
+  const typing = tag === "INPUT" || tag === "TEXTAREA";
+
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openCmdk(); return; }
+  if ($("#cmdkOverlay").classList.contains("open")) return;
+  if (typing) return;
+
+  if (e.key === "r" || e.key === "R") loadAll({ useCache: false, isBackground: false });
+  else if (e.key >= "1" && e.key <= "7") activateSection(SECTION_ORDER[Number(e.key) - 1]);
+});
+
+/* ══════════════════════ Wiring ══════════════════════ */
+$("#refreshBtn").addEventListener("click", () => loadAll({ useCache: false, isBackground: false }));
+$("#adminPin").addEventListener("change", savePin);
+$("#exportHistoryBtn").addEventListener("click", exportHistoryCsv);
+$("#deviceSearch")?.addEventListener("input", () => renderDevices(allDevicesRows));
+$("#historySearch")?.addEventListener("input", () => renderHistory(allHistoryRows));
+$("#densityToggle")?.addEventListener("change", (e) => {
+  document.querySelectorAll(".table-wrap").forEach((t) => t.classList.toggle("density-compact", e.target.checked));
+  try { localStorage.setItem("adminDensity", e.target.checked ? "1" : "0"); } catch {}
+});
+
+// Notifications toggle
+const notifyEl = document.getElementById('notifyToggle');
+if (notifyEl) {
+  notifyEl.checked = localStorage.getItem('adminNotify') === '1';
+  notifyEl.addEventListener('change', (e) => { localStorage.setItem('adminNotify', e.target.checked ? '1' : '0'); toast(`Notifications ${e.target.checked ? 'enabled' : 'disabled'}`, 'info'); });
+}
+
+// Bulk action buttons
+document.getElementById('pendingBulkConfirm')?.addEventListener('click', pendingBulkConfirm);
+document.getElementById('pendingBulkReject')?.addEventListener('click', pendingBulkReject);
+document.getElementById('devicesBulkRevoke')?.addEventListener('click', devicesBulkRevoke);
+
+// Cash sale modal wiring
+function openManualSale() {
+  document.getElementById('manualSaleModal').classList.add('open');
+  // populate package select
+  const sel = document.getElementById('manual_package');
+  if (sel) {
+    const packages = Array.isArray(currentAdminState?.dash?.packages) ? currentAdminState.dash.packages : [];
+    sel.innerHTML = '<option value="">Select package (optional)</option>' + packages.map((pkg) => `<option value="${pkg.id}">${pkg.name} — KES ${pkg.price}</option>`).join('');
+  }
+}
+function closeManualSale() { document.getElementById('manualSaleModal').classList.remove('open'); }
+
+function normalizeMacInput(value) {
+  return (value || '').trim().replace(/-/g, ':').toUpperCase();
+}
+
+function buildExtendUserOptions() {
+  const map = new Map();
+  const add = (ip, mac, phone, extra = {}) => {
+    const key = (normalizeMacInput(mac) || ip || phone || '').toLowerCase();
+    if (!key) return;
+    const prev = map.get(key) || {};
+    map.set(key, {
+      ip: ip || prev.ip || '',
+      mac: normalizeMacInput(mac) || prev.mac || '',
+      phone: phone || prev.phone || '',
+      remainingMs: extra.remainingMs ?? prev.remainingMs ?? 0,
+      liveState: extra.liveState || prev.liveState || '',
+    });
+  };
+
+  (currentAdminState?.devices || []).forEach((d) => add(d.ip, d.mac, d.phone, {
+    remainingMs: d.remainingMs,
+    liveState: d.liveState,
+  }));
+  (currentAdminState?.payments || []).forEach((p) => add(p.ip, p.mac, p.phone));
+  const codes = currentAdminState?.codes;
+  if (Array.isArray(codes)) {
+    codes.forEach((c) => add(c.ip, c.mac, c.phone));
+  } else if (codes && typeof codes === 'object') {
+    Object.values(codes).forEach((c) => add(c.ip, c.mac, c.phone));
+  }
+  (currentAdminState?.vouchers || []).forEach((v) => add(v.ip, v.mac, v.phone));
+  (currentAdminState?.connections || []).forEach((c) => add(c.ip, c.mac, c.phone));
+
+  return Array.from(map.values()).filter((u) => u.ip || u.mac);
+}
+
+function populateExtendDatalists() {
+  const users = buildExtendUserOptions();
+  const ipList = document.getElementById('extend_ip_list');
+  const macList = document.getElementById('extend_mac_list');
+  if (!ipList || !macList) return;
+
+  ipList.innerHTML = users.filter((u) => u.ip).map((u) => {
+    const hint = [u.phone, u.mac, u.liveState === 'Live' ? 'live' : ''].filter(Boolean).join(' · ');
+    return `<option value="${u.ip}">${hint || 'Past user'}</option>`;
+  }).join('');
+
+  macList.innerHTML = users.filter((u) => u.mac).map((u) => {
+    const hint = [u.phone, u.ip, u.liveState === 'Live' ? 'live' : ''].filter(Boolean).join(' · ');
+    return `<option value="${u.mac}">${hint || 'Past user'}</option>`;
+  }).join('');
+}
+
+function findExtendUser(ip, mac) {
+  const normalizedMac = normalizeMacInput(mac);
+  return buildExtendUserOptions().find((u) =>
+    (ip && u.ip === ip) || (normalizedMac && u.mac && u.mac === normalizedMac)
+  ) || null;
+}
+
+function syncExtendFieldsFromSelection() {
+  const ipInput = document.getElementById('extend_ip');
+  const macInput = document.getElementById('extend_mac');
+  const phoneInput = document.getElementById('extend_phone');
+  if (!ipInput || !macInput) return;
+
+  const ip = ipInput.value.trim();
+  const mac = macInput.value.trim();
+  const match = findExtendUser(ip, mac);
+  if (match) {
+    if (ip && !mac && match.mac) macInput.value = match.mac;
+    if (mac && !ip && match.ip) ipInput.value = match.ip;
+    if (phoneInput && !phoneInput.value.trim() && match.phone) phoneInput.value = match.phone;
+  }
+  updateExtendSessionInfo();
+}
+
+function updateExtendSessionInfo() {
+  const info = document.getElementById('extend_session_info');
+  if (!info) return;
+
+  const ip = document.getElementById('extend_ip')?.value.trim() || '';
+  const mac = document.getElementById('extend_mac')?.value.trim() || '';
+  if (!ip && !mac) {
+    info.classList.add('hidden');
+    info.textContent = '';
+    return;
+  }
+
+  const match = findExtendUser(ip, mac);
+  const liveDevice = (currentAdminState?.devices || []).find((d) =>
+    (ip && d.ip === ip) || (mac && normalizeMacInput(d.mac) === normalizeMacInput(mac))
+  );
+
+  if (liveDevice && liveDevice.remainingMs > 0) {
+    info.textContent = `Live connection — ${fmtDuration(liveDevice.remainingMs)} remaining. Package time will be added on top.`;
+    info.classList.remove('hidden');
+    info.classList.add('live');
+  } else if (match && match.remainingMs > 0) {
+    info.textContent = `Active session — ${fmtDuration(match.remainingMs)} remaining. Extension will stack onto existing time.`;
+    info.classList.remove('hidden');
+    info.classList.remove('live');
+  } else if (match) {
+    info.textContent = 'Past user found — will grant or restart access for the selected package.';
+    info.classList.remove('hidden');
+    info.classList.remove('live');
+  } else {
+    info.textContent = 'No existing session — will create new access for the selected package.';
+    info.classList.remove('hidden');
+    info.classList.remove('live');
+  }
+}
+
+function wireExtendFieldListeners() {
+  ['extend_ip', 'extend_mac'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.wired === '1') return;
+    el.dataset.wired = '1';
+    el.addEventListener('input', syncExtendFieldsFromSelection);
+    el.addEventListener('change', syncExtendFieldsFromSelection);
+  });
+}
+
+function openExtendAccess(device = null) {
+  document.getElementById('extendAccessModal').classList.add('open');
+  populateExtendDatalists();
+  wireExtendFieldListeners();
+  const sel = document.getElementById('extend_package');
+  if (sel) {
+    const packages = Array.isArray(currentAdminState?.dash?.packages) ? currentAdminState.dash.packages : [];
+    sel.innerHTML = '<option value="">Select package</option>' + packages.map((pkg) => `<option value="${pkg.id}">${pkg.name} — KES ${pkg.price}</option>`).join('');
+  }
+  const ipInput = document.getElementById('extend_ip');
+  const macInput = document.getElementById('extend_mac');
+  const phoneInput = document.getElementById('extend_phone');
+  const amountInput = document.getElementById('extend_amount');
+  if (device) {
+    ipInput.value = device.ip || '';
+    macInput.value = device.mac || '';
+    phoneInput.value = device.phone || '';
+  } else {
+    ipInput.value = '';
+    macInput.value = '';
+    phoneInput.value = '';
+    if (amountInput) amountInput.value = '';
+  }
+  updateExtendSessionInfo();
+}
+function closeExtendAccess() { document.getElementById('extendAccessModal').classList.remove('open'); }
+
+document.getElementById('openCashSaleBtn')?.addEventListener('click', openManualSale);
+document.getElementById('openExtendAccessBtn')?.addEventListener('click', () => openExtendAccess());
+document.getElementById('cancelManualSale')?.addEventListener('click', closeManualSale);
+document.getElementById('cancelExtendAccess')?.addEventListener('click', closeExtendAccess);
+document.getElementById('submitManualSale')?.addEventListener('click', async () => {
+  const ip = document.getElementById('manual_ip').value.trim();
+  const mac = document.getElementById('manual_mac').value.trim();
+  const phone = document.getElementById('manual_phone').value.trim();
+  const amount = document.getElementById('manual_amount').value.trim();
+  const pkg = document.getElementById('manual_package').value;
+  const authorizedBy = (localStorage.getItem('cashSaleOperator') || 'Admin').trim() || 'Admin';
+  const transactionId = `cash-${Date.now()}`;
+  if (!amount) { toast('Enter an amount', 'error'); return; }
+  try {
+    savePin();
+    const res = await apiPost('/api/admin/manual-sale', { ip: ip || null, mac: mac || null, phone: phone || null, amount, package: pkg || null, authorizedBy, transactionId });
+    toast(res.message || 'Manual sale processed', res.success ? 'success' : 'error');
+    closeManualSale(); loadAll({ useCache: false });
+  } catch (e) { toast('Network error during manual sale', 'error'); }
+});
+document.getElementById('submitExtendAccess')?.addEventListener('click', async () => {
+  const ip = document.getElementById('extend_ip').value.trim();
+  const mac = document.getElementById('extend_mac').value.trim();
+  const phone = document.getElementById('extend_phone').value.trim();
+  const amount = document.getElementById('extend_amount').value.trim();
+  const pkg = document.getElementById('extend_package').value;
+  const authorizedBy = (localStorage.getItem('cashSaleOperator') || 'Admin').trim() || 'Admin';
+  const transactionId = `extend-${Date.now()}`;
+  if (!ip && !mac) { toast('Enter a device IP or MAC address', 'error'); return; }
+  if (!pkg) { toast('Select a package to extend', 'error'); return; }
+  try {
+    savePin();
+    const res = await apiPost('/api/admin/extend-package', { ip: ip || null, mac: mac || null, phone: phone || null, amount: amount || null, package: pkg, authorizedBy, transactionId });
+    toast(res.message || 'Package access extended', res.success ? 'success' : 'error');
+    closeExtendAccess(); loadAll({ useCache: false });
+  } catch (e) { toast('Network error while extending access', 'error'); }
+});
+
+try {
+  const saved = localStorage.getItem("adminPin");
+  $("#adminPin").value = saved || "admin123";
+  const savedSection = localStorage.getItem("adminActiveSection");
+  if (savedSection && SECTION_ORDER.includes(savedSection)) activateSection(savedSection);
+  if (localStorage.getItem("adminDensity") === "1") {
+    $("#densityToggle").checked = true;
+    document.querySelectorAll(".table-wrap").forEach((t) => t.classList.add("density-compact"));
+  }
+} catch {}
+
+loadAll({ useCache: true, isBackground: false });
+startAutoRefresh();
+</script>
+</body>
+</html>

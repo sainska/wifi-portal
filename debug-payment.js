@@ -1,0 +1,14 @@
+const fs = require('fs');
+const path = require('path');
+process.env.WIFI_PORTAL_DATA_DIR = path.join(__dirname, 'tmp', 'payment-test');
+fs.mkdirSync(process.env.WIFI_PORTAL_DATA_DIR, { recursive: true });
+fs.writeFileSync(path.join(process.env.WIFI_PORTAL_DATA_DIR, 'authorized.json'), JSON.stringify({}), 'utf8');
+const db = require('./src/services/db');
+const payment = require('./src/services/payment');
+console.log('normalizeMac exists', typeof db.normalizeMac === 'function');
+const auth = db.authorize('127.0.0.1', '1h', 60, { phone: '+254712345678', mac: 'AA:BB:CC:DD:EE:FF', source: 'test' });
+console.log('auth', auth);
+console.log('authorized list', db.listAuthorized());
+console.log('ensure same mac same pkg', payment.ensurePaymentAllowed({ phone: '+254712345678', ip: '127.0.0.1', mac: 'AA:BB:CC:DD:EE:FF', packageId: '1h' }));
+console.log('ensure same phone same pkg', payment.ensurePaymentAllowed({ phone: '+254712345678', ip: '127.0.0.2', mac: '11:22:33:44:55:66', packageId: '1h' }));
+console.log('ensure second device for 7d2', payment.ensurePaymentAllowed({ phone: '+254712345678', ip: '127.0.0.3', mac: '22:33:44:55:66:77', packageId: '7d2' }));

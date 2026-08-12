@@ -1,0 +1,8 @@
+[
+  {
+    "checkoutId": "checkout-reject",
+    "status": "rejected",
+    "rejectedAt": 1786434262863,
+    "source": "admin_reject"
+  }
+]

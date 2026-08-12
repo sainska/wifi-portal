@@ -1,0 +1,9 @@
+DNS captive-portal server listening on UDP 192.168.137.1:53
+DNS captive-portal server listening on UDP 192.168.137.1:53
+Portal web server listening on http://192.168.137.1:80
+Admin dashboard: http://192.168.137.1:80/admin (from this laptop)
+Hotspot SSID: FREE FAST WiFi (open — no password)
+Captive portal: unpaid devices redirect to http://192.168.137.1:80/
+DNS interception: attempting to bind to UDP :53
+Supabase: configured
+Paystack: enabled

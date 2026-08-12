@@ -1,0 +1,19 @@
+{
+  "name": "wifi-portal",
+  "version": "1.0.0",
+  "description": "Captive portal + billing page for a Windows-hosted WiFi hotspot (Tenda F3 as dumb AP via ICS)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.27.0",
+    "dns2": "^2.1.0",
+    "express": "^4.19.2",
+    "body-parser": "^1.20.2",
+    "nanoid": "^3.3.7",
+    "compression": "^1.7.4",
+    "dotenv": "^16.4.5"
+  }
+}
